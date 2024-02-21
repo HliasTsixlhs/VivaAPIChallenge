@@ -17,12 +17,10 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Controllers\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\Common.HealthChecks\Common.HealthChecks.csproj" />
       <ProjectReference Include="..\Common.Logging.Serilog\Common.Logging.Serilog.csproj" />
+      <ProjectReference Include="..\Viva.Geo.API.Common\Viva.Geo.API.Common.csproj" />
+      <ProjectReference Include="..\Viva.Geo.API.Core\Viva.Geo.API.Core.csproj" />
       <ProjectReference Include="..\Viva.Geo.API.DataAccess\Viva.Geo.API.DataAccess.csproj" />
     </ItemGroup>
 
