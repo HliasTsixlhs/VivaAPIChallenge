@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Viva.Geo.API.Common.Dtos.ArrayProcessing.Requests;
 using Viva.Geo.API.Core.Abstractions.Services;
-
+using Viva.Geo.API.Common.Dtos.ArrayProcessing.Requests;
+using Viva.Geo.API.Common.Dtos.ArrayProcessing.Responses;
 
 namespace Viva.Geo.API.Controllers;
 
@@ -16,10 +16,14 @@ public class ArrayProcessingController : ControllerBase
         _secondLargestNumberService = secondLargestNumberService;
     }
 
-    [HttpPost("FindSecondLargest")]
+    [HttpPost("second-largest")]
     public IActionResult FindSecondLargest([FromBody] SecondLargestNumberRequest request)
     {
         var secondLargest = _secondLargestNumberService.FindSecondLargest(request.Numbers);
-        return Ok(secondLargest);
+        var response = new SecondLargestNumberResponse
+        {
+            SecondLargestNumber = secondLargest
+        };
+        return Ok(response);
     }
 }
