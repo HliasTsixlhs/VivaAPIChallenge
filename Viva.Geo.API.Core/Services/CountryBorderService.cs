@@ -1,6 +1,6 @@
-﻿using Viva.Geo.API.Core.Abstractions.Repositories;
+﻿using Common.MemoryCaching.Abstractions;
+using Viva.Geo.API.Core.Abstractions.Repositories;
 using Viva.Geo.API.Core.Abstractions.Services;
-using AutoMapper;
 using Viva.Geo.API.DataAccess.DataAccessModels;
 
 namespace Viva.Geo.API.Core.Services;
@@ -8,34 +8,36 @@ namespace Viva.Geo.API.Core.Services;
 public class CountryBorderService : ICountryBorderService
 {
     private readonly ICountryBorderRepository _countryBorderRepository;
-    private readonly IMapper _mapper;
+    private readonly IMemoryCacheService _cacheService;
 
-    public CountryBorderService(ICountryBorderRepository countryBorderRepository, IMapper mapper)
+    public CountryBorderService(ICountryBorderRepository countryBorderRepository, IMemoryCacheService cacheService)
     {
         _countryBorderRepository = countryBorderRepository;
-        _mapper = mapper;
+        _cacheService = cacheService;
     }
 
     public async Task AssociateCountryAndBorderAsync(int countryId, int borderId,
         CancellationToken cancellationToken = default)
     {
-        // Check if the association already exists
-        var existingAssociation = await _countryBorderRepository.GetAsync(countryId, borderId, cancellationToken);
-        if (existingAssociation != null)
+        var cacheKey = $"countryBorder_{countryId}_{borderId}";
+        var cachedCountryBorder = _cacheService.Get<CountryBorder>(cacheKey);
+
+        if (cachedCountryBorder == null)
         {
-            // Association already exists, no action needed
-            return;
+            var existingCountryBorder =
+                await _countryBorderRepository.GetAsync(countryId, borderId, cancellationToken);
+            if (existingCountryBorder == null)
+            {
+                var newCountryBorder = new CountryBorder
+                {
+                    CountryId = countryId,
+                    BorderId = borderId
+                };
+                existingCountryBorder = await _countryBorderRepository.CreateAsync(newCountryBorder, cancellationToken);
+                await _countryBorderRepository.CommitAsync(cancellationToken);
+            }
+
+            _cacheService.Set(cacheKey, existingCountryBorder, TimeSpan.FromMinutes(5));
         }
-
-        // Create new association
-        var newAssociation = new CountryBorder
-        {
-            CountryId = countryId,
-            BorderId = borderId
-        };
-
-        // Save the new association
-        await _countryBorderRepository.CreateAsync(newAssociation, cancellationToken);
-        await _countryBorderRepository.CommitAsync(cancellationToken);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using AutoMapper;
+using Common.MemoryCaching.Abstractions;
 using Viva.Geo.API.Common.Dtos.Borders.Responses;
 using Viva.Geo.API.Common.Dtos.Countries.Responses;
 using Viva.Geo.API.Core.Abstractions.Repositories;
@@ -14,6 +15,7 @@ public class CountryService : ICountryService
     private readonly ICountryRepository _countryRepository;
     private readonly ICountryBorderService _countryBorderService;
     private readonly IBorderService _borderService;
+    private readonly IMemoryCacheService _cacheService;
     private readonly IMapper _mapper;
     private readonly HttpClient _httpClient;
 
@@ -21,12 +23,14 @@ public class CountryService : ICountryService
         ICountryRepository countryRepository,
         ICountryBorderService countryBorderService,
         IBorderService borderService,
+        IMemoryCacheService cacheService,
         IMapper mapper,
         HttpClient httpClient)
     {
         _countryRepository = countryRepository;
         _countryBorderService = countryBorderService;
         _borderService = borderService;
+        _cacheService = cacheService;
         _mapper = mapper;
         _httpClient = httpClient;
     }
@@ -34,6 +38,14 @@ public class CountryService : ICountryService
     public async Task<CountryDto> RetrieveAndSaveCountryByNameAsync(string countryName,
         CancellationToken cancellationToken = default)
     {
+        var cacheKey = $"Country_{countryName}";
+        var cachedCountry = _cacheService.Get<CountryDto>(cacheKey);
+
+        if (cachedCountry != null)
+        {
+            return cachedCountry;
+        }
+
         var response =
             await _httpClient.GetAsync($"https://restcountries.com/v3.1/name/{countryName}", cancellationToken);
         response.EnsureSuccessStatusCode();
@@ -75,6 +87,8 @@ public class CountryService : ICountryService
 
             var result = _mapper.Map<CountryDto>(savedCountry);
             result.Borders = borders.Select(b => b.BorderCode).ToList();
+
+            _cacheService.Set(cacheKey, result, TimeSpan.FromMinutes(5));
             return result;
         }
 
@@ -84,6 +98,14 @@ public class CountryService : ICountryService
     public async Task<IEnumerable<CountryDto>> RetrieveAndSaveCountriesAsync(
         CancellationToken cancellationToken = default)
     {
+        const string cacheKey = "All_Countries";
+        var cachedCountries = _cacheService.Get<IEnumerable<CountryDto>>(cacheKey);
+
+        if (cachedCountries != null)
+        {
+            return cachedCountries;
+        }
+
         var response = await _httpClient.GetAsync($"https://restcountries.com/v3.1/all", cancellationToken);
         response.EnsureSuccessStatusCode();
 
@@ -128,6 +150,8 @@ public class CountryService : ICountryService
             results.Add(result);
         }
 
+        // After fetching and saving, store in cache
+        _cacheService.Set(cacheKey, results, TimeSpan.FromMinutes(5));
         return results;
     }
 }
