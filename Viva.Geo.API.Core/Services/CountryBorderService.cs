@@ -1,4 +1,6 @@
-﻿using Common.MemoryCaching.Abstractions;
+﻿using Common.Logging.Serilog.Factories.Abstractions;
+using Common.MemoryCaching.Abstractions;
+using Microsoft.Extensions.Logging;
 using Viva.Geo.API.Core.Abstractions.Repositories;
 using Viva.Geo.API.Core.Abstractions.Services;
 using Viva.Geo.API.DataAccess.DataAccessModels;
@@ -9,11 +11,18 @@ public class CountryBorderService : ICountryBorderService
 {
     private readonly ICountryBorderRepository _countryBorderRepository;
     private readonly IMemoryCacheService _cacheService;
+    private readonly ILogger<CountryBorderService> _logger;
+    private readonly IEventIdFactory _eventIdFactory;
 
-    public CountryBorderService(ICountryBorderRepository countryBorderRepository, IMemoryCacheService cacheService)
+    public CountryBorderService(ICountryBorderRepository countryBorderRepository,
+        IMemoryCacheService cacheService,
+        ILogger<CountryBorderService> logger,
+        IEventIdFactory eventIdFactory)
     {
         _countryBorderRepository = countryBorderRepository;
         _cacheService = cacheService;
+        _logger = logger;
+        _eventIdFactory = eventIdFactory;
     }
 
     public async Task AssociateCountryAndBorderAsync(int countryId, int borderId,
