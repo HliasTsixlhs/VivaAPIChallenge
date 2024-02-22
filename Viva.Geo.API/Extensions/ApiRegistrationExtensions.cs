@@ -24,6 +24,24 @@ public static class ApiRegistrationExtensions
         return services;
     }
 
+    /// <summary>
+    /// Adds and configures HttpClient services using HttpClientFactory.
+    /// HttpClientFactory offers several benefits like managing the lifetimes of HttpClient instances,
+    /// improving DNS (Domain Name System) updates, and promoting reusable HttpClient instances.
+    /// This method configures a named HttpClient and can also register typed clients for specific services.
+    /// </summary>
+    /// <returns>The IServiceCollection for chaining.</returns>
+    public static IServiceCollection AddClients(this IServiceCollection services)
+    {
+        // Configure HttpClient for rest countries API
+        services.AddHttpClient("restCountriesApiClient", client =>
+        {
+            client.BaseAddress = new Uri("https://restcountries.com/v3.1/all");
+            client.DefaultRequestHeaders.Add("Accept", "application/json");
+        });
+
+        return services;
+    }
 
     public static IServiceCollection AddRepositories(this IServiceCollection services)
     {

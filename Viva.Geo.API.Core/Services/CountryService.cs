@@ -17,7 +17,7 @@ public class CountryService : ICountryService
     private readonly IBorderService _borderService;
     private readonly IMemoryCacheService _cacheService;
     private readonly IMapper _mapper;
-    private readonly HttpClient _httpClient;
+    private readonly IHttpClientFactory _httpClientFactory;
 
     public CountryService(
         ICountryRepository countryRepository,
@@ -25,14 +25,14 @@ public class CountryService : ICountryService
         IBorderService borderService,
         IMemoryCacheService cacheService,
         IMapper mapper,
-        HttpClient httpClient)
+        IHttpClientFactory httpClientFactory)
     {
         _countryRepository = countryRepository;
         _countryBorderService = countryBorderService;
         _borderService = borderService;
         _cacheService = cacheService;
         _mapper = mapper;
-        _httpClient = httpClient;
+        _httpClientFactory = httpClientFactory;
     }
 
     public async Task<CountryDto> RetrieveAndSaveCountryByNameAsync(string countryName,
@@ -46,8 +46,9 @@ public class CountryService : ICountryService
             return cachedCountry;
         }
 
+        var client = _httpClientFactory.CreateClient("restCountriesApiClient");
         var response =
-            await _httpClient.GetAsync($"https://restcountries.com/v3.1/name/{countryName}", cancellationToken);
+            await client.GetAsync($"https://restcountries.com/v3.1/name/{countryName}", cancellationToken);
         response.EnsureSuccessStatusCode();
 
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
@@ -106,7 +107,9 @@ public class CountryService : ICountryService
             return cachedCountries;
         }
 
-        var response = await _httpClient.GetAsync($"https://restcountries.com/v3.1/all", cancellationToken);
+        var client = _httpClientFactory.CreateClient("restCountriesApiClient");
+
+        var response = await client.GetAsync($"https://restcountries.com/v3.1/all", cancellationToken);
         response.EnsureSuccessStatusCode();
 
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
