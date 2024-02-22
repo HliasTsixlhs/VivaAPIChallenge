@@ -1,6 +1,9 @@
 ﻿using System.Text.Json;
 using AutoMapper;
+using Common.Logging.Serilog.Enums;
+using Common.Logging.Serilog.Factories.Abstractions;
 using Common.MemoryCaching.Abstractions;
+using Microsoft.Extensions.Logging;
 using Viva.Geo.API.Common.Dtos.Borders.Responses;
 using Viva.Geo.API.Common.Dtos.Countries.Responses;
 using Viva.Geo.API.Core.Abstractions.Repositories;
@@ -18,6 +21,8 @@ public class CountryService : ICountryService
     private readonly IMemoryCacheService _cacheService;
     private readonly IMapper _mapper;
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly ILogger<CountryService> _logger;
+    private readonly IEventIdFactory _eventIdFactory;
 
     public CountryService(
         ICountryRepository countryRepository,
@@ -25,7 +30,9 @@ public class CountryService : ICountryService
         IBorderService borderService,
         IMemoryCacheService cacheService,
         IMapper mapper,
-        IHttpClientFactory httpClientFactory)
+        IHttpClientFactory httpClientFactory,
+        ILogger<CountryService> logger,
+        IEventIdFactory eventIdFactory)
     {
         _countryRepository = countryRepository;
         _countryBorderService = countryBorderService;
@@ -33,6 +40,8 @@ public class CountryService : ICountryService
         _cacheService = cacheService;
         _mapper = mapper;
         _httpClientFactory = httpClientFactory;
+        _logger = logger;
+        _eventIdFactory = eventIdFactory;
     }
 
     public async Task<CountryDto> RetrieveAndSaveCountryByNameAsync(string countryName,
@@ -43,6 +52,8 @@ public class CountryService : ICountryService
 
         if (cachedCountry != null)
         {
+            _logger.LogInformation(_eventIdFactory.Create(VivaGeoApiEvent.CountryProcessing),
+                "Retrieved country data for {CountryName} from cache", countryName);
             return cachedCountry;
         }
 
@@ -89,6 +100,8 @@ public class CountryService : ICountryService
             var result = _mapper.Map<CountryDto>(savedCountry);
             result.Borders = borders.Select(b => b.BorderCode).ToList();
 
+            _logger.LogInformation(_eventIdFactory.Create(VivaGeoApiEvent.CountryProcessing),
+                "Setting country data for {CountryName} in cache", countryName);
             _cacheService.Set(cacheKey, result, TimeSpan.FromMinutes(5));
             return result;
         }
@@ -104,6 +117,8 @@ public class CountryService : ICountryService
 
         if (cachedCountries != null)
         {
+            _logger.LogInformation(_eventIdFactory.Create(VivaGeoApiEvent.CountryProcessing),
+                "Retrieved all countries from cache");
             return cachedCountries;
         }
 
@@ -153,7 +168,8 @@ public class CountryService : ICountryService
             results.Add(result);
         }
 
-        // After fetching and saving, store in cache
+        _logger.LogInformation(_eventIdFactory.Create(VivaGeoApiEvent.CountryProcessing),
+            "Setting all countries data in cache");
         _cacheService.Set(cacheKey, results, TimeSpan.FromMinutes(5));
         return results;
     }
