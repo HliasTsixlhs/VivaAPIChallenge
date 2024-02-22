@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Viva.Geo.API.Core.Abstractions.Repositories;
 using Viva.Geo.API.Core.Abstractions.Services;
+using Viva.Geo.API.Core.Repositories;
 using Viva.Geo.API.Core.Services;
 using Viva.Geo.API.DataAccess.Context;
 using Viva.Geo.API.Options;
@@ -25,12 +27,22 @@ public static class ApiRegistrationExtensions
 
     public static IServiceCollection AddRepositories(this IServiceCollection services)
     {
+        // Geo Repositories registrations
+        services.AddScoped<ICountryRepository, CountryRepository>();
+        services.AddScoped<IBorderRepository, BorderRepository>();
+        services.AddScoped<ICountryBorderRepository, CountryBorderRepository>();
+
         return services;
     }
 
     public static IServiceCollection AddServices(this IServiceCollection services)
     {
         services.AddScoped<ISecondLargestNumberService, SecondLargestNumberService>();
+
+        // Geo Services registrations
+        services.AddScoped<ICountryService, CountryService>();
+        services.AddScoped<IBorderService, BorderService>();
+        services.AddScoped<ICountryBorderService, CountryBorderService>();
 
         return services;
     }
