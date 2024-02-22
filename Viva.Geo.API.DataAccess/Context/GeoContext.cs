@@ -18,6 +18,7 @@ namespace Viva.Geo.API.DataAccess.Context
             // Use the extension methods for configuration
             modelBuilder.RegisterCountryEntity();
             modelBuilder.RegisterBorderEntity();
+            modelBuilder.RegisterCountryBorderEntity();
         }
     }
 }

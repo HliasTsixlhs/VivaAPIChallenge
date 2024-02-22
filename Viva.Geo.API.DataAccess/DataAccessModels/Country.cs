@@ -6,5 +6,6 @@ public class Country
     public string CommonName { get; set; }
     public string Capital { get; set; }
 
-    public ICollection<Border> Borders { get; set; } // Collection of Border, not Country
+    // Navigation property for the many-to-many relationship
+    public ICollection<CountryBorder> CountryBorders { get; set; }
 }

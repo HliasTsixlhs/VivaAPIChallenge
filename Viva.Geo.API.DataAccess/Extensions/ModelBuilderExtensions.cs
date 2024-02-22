@@ -1,39 +1,44 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Viva.Geo.API.DataAccess.DataAccessModels;
 
-namespace Viva.Geo.API.DataAccess.Extensions
+namespace Viva.Geo.API.DataAccess.Extensions;
+
+public static class ModelBuilderExtensions
 {
-    public static class ModelBuilderExtensions
+    public static void RegisterCountryEntity(this ModelBuilder modelBuilder)
     {
-        public static void RegisterCountryEntity(this ModelBuilder modelBuilder)
+        modelBuilder.Entity<Country>(entity =>
         {
-            modelBuilder.Entity<Country>(entity =>
-            {
-                entity.ToTable("Countries");
-                entity.HasKey(e => e.CountryId);
-                entity.Property(e => e.CommonName).IsRequired();
-                entity.Property(e => e.Capital);
-            });
-        }
+            entity.ToTable("Countries");
+            entity.HasKey(e => e.CountryId);
+            entity.Property(e => e.CommonName).IsRequired();
+            entity.Property(e => e.Capital);
+        });
+    }
 
-        public static void RegisterBorderEntity(this ModelBuilder modelBuilder)
+    public static void RegisterBorderEntity(this ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Border>(entity =>
         {
-            modelBuilder.Entity<Border>()
-                .HasKey(b => new {b.CountryId, b.BorderCountryId});
+            entity.ToTable("Borders");
+            entity.HasKey(e => e.BorderId);
+            entity.Property(e => e.BorderCode).IsRequired();
+        });
+    }
 
-            modelBuilder.Entity<Border>()
-                .HasOne(b => b.Country)
-                .WithMany(c => c.Borders)
-                .HasForeignKey(b => b.CountryId)
-                .OnDelete(DeleteBehavior.Restrict); // Prevent cascade delete
+    public static void RegisterCountryBorderEntity(this ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<CountryBorder>()
+            .HasKey(cb => new { cb.CountryId, cb.BorderId });
 
-            modelBuilder.Entity<Border>()
-                .HasOne(b => b.BorderCountry)
-                .WithMany()
-                .HasForeignKey(b => b.BorderCountryId)
-                .OnDelete(DeleteBehavior.Restrict); // Prevent cascade delete
+        modelBuilder.Entity<CountryBorder>()
+            .HasOne(cb => cb.Country)
+            .WithMany(c => c.CountryBorders)
+            .HasForeignKey(cb => cb.CountryId);
 
-            modelBuilder.Entity<Border>().ToTable("Borders");
-        }
+        modelBuilder.Entity<CountryBorder>()
+            .HasOne(cb => cb.Border)
+            .WithMany(b => b.CountryBorders)
+            .HasForeignKey(cb => cb.BorderId);
     }
 }

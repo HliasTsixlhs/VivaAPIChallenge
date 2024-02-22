@@ -1,10 +1,10 @@
-﻿using Viva.Geo.API.DataAccess.DataAccessModels;
+﻿namespace Viva.Geo.API.DataAccess.DataAccessModels;
 
 public class Border
 {
-    public int CountryId { get; set; }
-    public Country Country { get; set; }
+    public int BorderId { get; set; }
+    public string BorderCode { get; set; } // For example, "ALB", "BGR", etc.
 
-    public int BorderCountryId { get; set; }
-    public Country BorderCountry { get; set; }
+    // Navigation property for the many-to-many relationship
+    public ICollection<CountryBorder> CountryBorders { get; set; }
 }
