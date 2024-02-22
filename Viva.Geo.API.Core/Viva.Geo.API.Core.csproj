@@ -7,6 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Common.MemoryCaching\Common.MemoryCaching.csproj" />
       <ProjectReference Include="..\Common.Persistence.EFCore\Common.Persistence.EFCore.csproj" />
       <ProjectReference Include="..\Viva.Geo.API.Common\Viva.Geo.API.Common.csproj" />
       <ProjectReference Include="..\Viva.Geo.API.DataAccess\Viva.Geo.API.DataAccess.csproj" />
