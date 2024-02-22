@@ -8,12 +8,12 @@ namespace Viva.Geo.API.Core.Services;
 /// <summary>
 /// Service for processing arrays and finding the second largest number.
 /// </summary>
-public class SecondLargestNumberService : ISecondLargestNumberService
+public class ArrayProcessingService : IArrayProcessingService
 {
-    private readonly ILogger<SecondLargestNumberService> _logger;
+    private readonly ILogger<ArrayProcessingService> _logger;
     private readonly IEventIdFactory _eventIdFactory;
 
-    public SecondLargestNumberService(ILogger<SecondLargestNumberService> logger, IEventIdFactory eventIdFactory)
+    public ArrayProcessingService(ILogger<ArrayProcessingService> logger, IEventIdFactory eventIdFactory)
     {
         _logger = logger;
         _eventIdFactory = eventIdFactory;

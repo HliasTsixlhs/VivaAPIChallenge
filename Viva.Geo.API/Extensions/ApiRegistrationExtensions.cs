@@ -55,7 +55,7 @@ public static class ApiRegistrationExtensions
 
     public static IServiceCollection AddServices(this IServiceCollection services)
     {
-        services.AddScoped<ISecondLargestNumberService, SecondLargestNumberService>();
+        services.AddScoped<IArrayProcessingService, ArrayProcessingService>();
 
         // Geo Services registrations
         services.AddScoped<ICountryService, CountryService>();

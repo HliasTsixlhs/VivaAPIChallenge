@@ -11,16 +11,16 @@ namespace Viva.Geo.API.Controllers;
 [Route("api/[controller]")]
 public class ArrayProcessingController : ControllerBase
 {
-    private readonly ISecondLargestNumberService _secondLargestNumberService;
+    private readonly IArrayProcessingService _arrayProcessingService;
     private readonly ILogger<ArrayProcessingController> _logger;
     private readonly IEventIdFactory _eventIdFactory;
 
     public ArrayProcessingController(
-        ISecondLargestNumberService secondLargestNumberService,
+        IArrayProcessingService arrayProcessingService,
         ILogger<ArrayProcessingController> logger,
         IEventIdFactory eventIdFactory)
     {
-        _secondLargestNumberService = secondLargestNumberService;
+        _arrayProcessingService = arrayProcessingService;
         _logger = logger;
         _eventIdFactory = eventIdFactory;
     }
@@ -35,7 +35,7 @@ public class ArrayProcessingController : ControllerBase
             return BadRequest("At least two numbers are required.");
         }
 
-        var secondLargest = _secondLargestNumberService.FindSecondLargest(request.Numbers);
+        var secondLargest = _arrayProcessingService.FindSecondLargest(request.Numbers);
         var response = new SecondLargestNumberResponse
         {
             SecondLargestNumber = secondLargest

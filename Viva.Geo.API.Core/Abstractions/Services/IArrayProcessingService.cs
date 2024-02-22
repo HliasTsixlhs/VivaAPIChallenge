@@ -3,7 +3,7 @@
 /// <summary>
 /// Interface for a service that provides functionality to find the second largest number in an array.
 /// </summary>
-public interface ISecondLargestNumberService
+public interface IArrayProcessingService
 {
     /// <summary>
     /// Finds the second largest number in the provided array of integers.
