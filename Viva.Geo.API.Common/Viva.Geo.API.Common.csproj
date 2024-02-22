@@ -6,4 +6,9 @@
         <Nullable>disable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <Folder Include="Dtos\Borders\Request\" />
+      <Folder Include="Dtos\Countries\Requests\" />
+    </ItemGroup>
+
 </Project>
