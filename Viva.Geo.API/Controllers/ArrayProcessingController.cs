@@ -28,18 +28,23 @@ public class ArrayProcessingController : ControllerBase
     [HttpPost("second-largest")]
     public IActionResult FindSecondLargest([FromBody] SecondLargestIntegerRequest request)
     {
-        if (request.Numbers == null || request.Numbers.Count() < 2)
-        {
-            var eventId = _eventIdFactory.Create(VivaGeoApiEvent.ArrayProcessing);
-            _logger.LogWarning(eventId, "Invalid request received. At least two numbers are required.");
-            return BadRequest("At least two numbers are required.");
-        }
+        var eventId = _eventIdFactory.Create(VivaGeoApiEvent.ArrayProcessing);
+        var traceId = HttpContext.TraceIdentifier;
 
-        var secondLargest = _arrayProcessingService.FindSecondLargest(request.Numbers);
-        var response = new SecondLargestIntegerResponse
+        using (_logger.BeginScope("TraceId: {TraceId}", traceId))
         {
-            SecondLargestInteger = secondLargest
-        };
-        return Ok(response);
+            _logger.LogInformation(eventId,
+                "Processing array to find the second largest integer. Array: {Array}",
+                request.Numbers);
+
+
+            var secondLargest = _arrayProcessingService.FindSecondLargest(request.Numbers);
+            var response = new SecondLargestIntegerResponse
+            {
+                SecondLargestInteger = secondLargest
+            };
+
+            return Ok(response);
+        }
     }
 }
