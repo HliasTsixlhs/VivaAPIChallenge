@@ -34,12 +34,14 @@ public class ArrayProcessingService : IArrayProcessingService
         var eventId = _eventIdFactory.Create(VivaGeoApiEvent.ArrayProcessing);
         _logger.LogInformation(eventId, "Finding the second largest number in the array.");
 
-        var secondLargest = numbers
-            .OrderByDescending(n => n)
-            .Distinct()
-            .Skip(1)
-            .FirstOrDefault();
+        var enumerable = numbers as int[] ?? numbers.ToArray();
+        if (enumerable.Distinct().Count() < 2)
+        {
+            _logger.LogWarning(eventId, "Insufficient number of distinct elements in the array for processing.");
+            return -1; // Todo: This should better throw an exception because -1 is a valid response..
+        }
 
+        var secondLargest = enumerable.OrderByDescending(n => n).Distinct().Skip(1).First();
         _logger.LogInformation(eventId, "The second largest number found: {SecondLargest}", secondLargest);
 
         return secondLargest;
