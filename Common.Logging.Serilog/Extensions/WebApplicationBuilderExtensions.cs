@@ -11,12 +11,10 @@ public static class WebApplicationBuilderExtensions
         Log.Logger = new LoggerConfiguration()
             .ReadFrom.Configuration(builder.Configuration)
             .Enrich.FromLogContext()
-            // Additional configurations or enrichers can be added here
+            .Enrich.WithProcessId()
+            .Enrich.WithThreadId()
+            .Enrich.WithMachineName()
             .CreateLogger();
-
-        // Set Serilog as the logging provider
-        builder.Host.UseSerilog();
-
         return builder;
     }
 }
