@@ -1,6 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.EntityFrameworkCore;
 using Viva.Geo.API.Core.Abstractions.Repositories;
 using Viva.Geo.API.Core.Abstractions.Services;
+using Viva.Geo.API.Core.Exceptions;
 using Viva.Geo.API.Core.Repositories;
 using Viva.Geo.API.Core.Services;
 using Viva.Geo.API.DataAccess.Context;
@@ -61,6 +63,52 @@ public static class ApiRegistrationExtensions
         services.AddScoped<ICountryService, CountryService>();
         services.AddScoped<IBorderService, BorderService>();
         services.AddScoped<ICountryBorderService, CountryBorderService>();
+
+        return services;
+    }
+
+    /// <summary>
+    /// Configures ProblemDetails middleware to handle exceptions and failed requests with custom error responses.
+    /// </summary>
+    /// <param name="services">The IServiceCollection to add services to.</param>
+    /// <param name="environment">The hosting environment, used to tailor error responses based on the application's running environment.</param>
+    /// <returns>The updated IServiceCollection with ProblemDetails middleware configured.</returns>
+    /// <remarks>
+    /// This method enhances the APIs error handling capabilities by setting up ProblemDetails middleware. It enables the API to return standardized, machine-readable error details, beneficial for RESTful APIs.
+    /// In a development environment, detailed error information is provided for debugging purposes. In a production environment, a generic error message is returned to avoid exposing sensitive details.
+    /// Custom exception handling can be added to provide specific error information for known exception types.
+    /// </remarks>
+    public static IServiceCollection AddProblemDetailsHandling(
+        this IServiceCollection services,
+        IWebHostEnvironment environment)
+    {
+        services.AddProblemDetails(options =>
+        {
+            options.CustomizeProblemDetails = ctx =>
+            {
+                var exception = ctx.HttpContext.Features.Get<IExceptionHandlerFeature>()?.Error;
+
+                // Setting a generic error message for production environment
+                if (!environment.IsDevelopment() && ctx.ProblemDetails.Status == 500)
+                {
+                    ctx.ProblemDetails.Title = "An error occurred";
+                    ctx.ProblemDetails.Detail =
+                        "An error occurred in our API. Please contact support. Note: Use the trace id when contracting us.";
+                    return;
+                }
+
+                // Customizing based on specific exception types
+                switch (exception)
+                {
+                    case InsufficientUniqueElementsException ex:
+                        ctx.ProblemDetails.Status = StatusCodes.Status400BadRequest;
+                        ctx.ProblemDetails.Title = "Insufficient Unique Elements";
+                        ctx.ProblemDetails.Detail = ex.Message;
+                        break;
+                    // Add more cases for other custom exceptions if necessary
+                }
+            };
+        });
 
         return services;
     }
