@@ -4,6 +4,6 @@ namespace Viva.Geo.API.Core.Abstractions.Services;
 
 public interface ICountryService
 {
-    Task<CountryDto> RetrieveAndSaveCountryByNameAsync(string countryName, CancellationToken cancellationToken = default);
+    Task<CountryDto> RetrieveAndSaveCountryByNameAsync(string name, CancellationToken cancellationToken = default);
     Task<IEnumerable<CountryDto>> RetrieveAndSaveCountriesAsync(CancellationToken cancellationToken = default);
 }

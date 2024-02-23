@@ -26,7 +26,7 @@ public class ArrayProcessingController : ControllerBase
     }
 
     [HttpPost("second-largest")]
-    public IActionResult FindSecondLargest([FromBody] SecondLargestNumberRequest request)
+    public IActionResult FindSecondLargest([FromBody] SecondLargestIntegerRequest request)
     {
         if (request.Numbers == null || request.Numbers.Count() < 2)
         {
@@ -36,9 +36,9 @@ public class ArrayProcessingController : ControllerBase
         }
 
         var secondLargest = _arrayProcessingService.FindSecondLargest(request.Numbers);
-        var response = new SecondLargestNumberResponse
+        var response = new SecondLargestIntegerResponse
         {
-            SecondLargestNumber = secondLargest
+            SecondLargestInteger = secondLargest
         };
         return Ok(response);
     }

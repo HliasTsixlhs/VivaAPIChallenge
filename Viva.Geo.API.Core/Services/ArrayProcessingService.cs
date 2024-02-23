@@ -6,7 +6,7 @@ using Viva.Geo.API.Core.Abstractions.Services;
 namespace Viva.Geo.API.Core.Services;
 
 /// <summary>
-/// Service for processing arrays and finding the second largest number.
+/// Service for processing arrays.
 /// </summary>
 public class ArrayProcessingService : IArrayProcessingService
 {
@@ -20,11 +20,16 @@ public class ArrayProcessingService : IArrayProcessingService
     }
 
     /// <summary>
-    /// Finds the second largest number in an array using LINQ.
+    /// Finds the second largest unique integer in a given array of integers. 
     /// </summary>
+    /// <remarks>
+    /// This method is designed to identify the second largest distinct integer value. 
+    /// If the array contains less than two unique integers, the method returns -1. 
+    /// For example, an array like [5, 5, 5, 5, 5] will result in -1 as there is no second distinct integer.
+    /// </remarks>
     /// <param name="numbers">The array of integers to process.</param>
-    /// <returns>The second largest integer in the array.</returns>
-    public int FindSecondLargest(IEnumerable<int> numbers)
+    /// <returns>The second largest unique integer in the array, or -1 if there are less than two unique integers.</returns>
+    public int FindSecondLargest(IEnumerable<int> numbers) // Todo: Think about using SecondLargestIntegerRequest instead..
     {
         var eventId = _eventIdFactory.Create(VivaGeoApiEvent.ArrayProcessing);
         _logger.LogInformation(eventId, "Finding the second largest number in the array.");

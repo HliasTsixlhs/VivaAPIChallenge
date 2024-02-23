@@ -44,22 +44,22 @@ public class CountryService : ICountryService
         _eventIdFactory = eventIdFactory;
     }
 
-    public async Task<CountryDto> RetrieveAndSaveCountryByNameAsync(string countryName,
+    public async Task<CountryDto> RetrieveAndSaveCountryByNameAsync(string name,
         CancellationToken cancellationToken = default)
     {
-        var cacheKey = $"Country_{countryName}";
+        var cacheKey = $"Country_{name}";
         var cachedCountry = _cacheService.Get<CountryDto>(cacheKey);
 
         if (cachedCountry != null)
         {
             _logger.LogInformation(_eventIdFactory.Create(VivaGeoApiEvent.CountryProcessing),
-                "Retrieved country data for {CountryName} from cache", countryName);
+                "Retrieved country data for {name} from cache", name);
             return cachedCountry;
         }
 
         var client = _httpClientFactory.CreateClient("restCountriesApiClient");
         var response =
-            await client.GetAsync($"https://restcountries.com/v3.1/name/{countryName}", cancellationToken);
+            await client.GetAsync($"https://restcountries.com/v3.1/name/{name}", cancellationToken);
         response.EnsureSuccessStatusCode();
 
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
@@ -101,7 +101,7 @@ public class CountryService : ICountryService
             result.Borders = borders.Select(b => b.BorderCode).ToList();
 
             _logger.LogInformation(_eventIdFactory.Create(VivaGeoApiEvent.CountryProcessing),
-                "Setting country data for {CountryName} in cache", countryName);
+                "Setting country data for {name} in cache", name);
             _cacheService.Set(cacheKey, result, TimeSpan.FromMinutes(5));
             return result;
         }
