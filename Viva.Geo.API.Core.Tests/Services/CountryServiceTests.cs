@@ -1,49 +1,60 @@
-﻿using AutoMapper;
+﻿using System.Net;
+using System.Text.Json;
+using AutoMapper;
 using Common.Logging.Serilog.Factories.Abstractions;
 using Common.MemoryCaching.Abstractions;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Moq.Protected;
+using Viva.Geo.API.Common.Dtos.Borders.Responses;
 using Viva.Geo.API.Common.Dtos.Countries.Responses;
 using Viva.Geo.API.Core.Abstractions.Repositories;
 using Viva.Geo.API.Core.Abstractions.Services;
+using Viva.Geo.API.Core.Models;
 using Viva.Geo.API.Core.Services;
+using Viva.Geo.API.DataAccess.DataAccessModels;
 
 namespace Viva.Geo.API.Core.Tests.Services;
 
 public class CountryServiceTests
 {
     private readonly Mock<ICountryRepository> _mockCountryRepository;
-    private readonly Mock<ICountryBorderService> _mockCountryBorderService;
     private readonly Mock<IBorderService> _mockBorderService;
     private readonly Mock<IMemoryCacheService> _mockCacheService;
     private readonly Mock<IMapper> _mockMapper;
     private readonly Mock<IHttpClientFactory> _mockHttpClientFactory;
-    private readonly Mock<ILogger<CountryService>> _mockLogger;
-    private readonly Mock<IEventIdFactory> _mockEventIdFactory;
     private readonly CountryService _countryService;
 
     public CountryServiceTests()
     {
+        var mockCountryBorderService = new Mock<ICountryBorderService>();
+        var mockLogger = new Mock<ILogger<CountryService>>();
+        var mockEventIdFactory = new Mock<IEventIdFactory>();
         _mockCountryRepository = new Mock<ICountryRepository>();
-        _mockCountryBorderService = new Mock<ICountryBorderService>();
         _mockBorderService = new Mock<IBorderService>();
         _mockCacheService = new Mock<IMemoryCacheService>();
         _mockMapper = new Mock<IMapper>();
         _mockHttpClientFactory = new Mock<IHttpClientFactory>();
-        _mockLogger = new Mock<ILogger<CountryService>>();
-        _mockEventIdFactory = new Mock<IEventIdFactory>();
+
 
         _countryService = new CountryService(
             _mockCountryRepository.Object,
-            _mockCountryBorderService.Object,
+            mockCountryBorderService.Object,
             _mockBorderService.Object,
             _mockCacheService.Object,
             _mockMapper.Object,
             _mockHttpClientFactory.Object,
-            _mockLogger.Object,
-            _mockEventIdFactory.Object);
+            mockLogger.Object,
+            mockEventIdFactory.Object);
     }
 
+    /// <summary>
+    /// Tests whether RetrieveAndSaveCountriesAsync correctly returns cached countries when they are available in the cache.
+    /// </summary>
+    /// <remarks>
+    /// This test simulates a scenario where the requested countries are already stored in the cache.
+    /// It verifies that the method returns the cached countries without making a call to the external country repository.
+    /// </remarks>
     [Fact]
     public async Task RetrieveAndSaveCountriesAsync_ShouldReturnCachedCountries_WhenCacheHit()
     {
@@ -67,100 +78,6 @@ public class CountryServiceTests
             Times.Never);
     }
 
-    // [Fact]
-    // public async Task
-    //     RetrieveAndSaveCountriesAsync_ShouldReturnExistingCountryFromDatabase_WhenCacheMissAndDatabaseHit()
-    // {
-    //     // Arrange
-    //     const string cacheKey = "All_Countries";
-    //     _mockCacheService.Setup(s => s.Get<IEnumerable<CountryDto>>(cacheKey)).Returns((IEnumerable<CountryDto>) null);
-    //
-    //     const string countryName = "TestCountry";
-    //     var countryInfo = new ExternalCountryInfo
-    //     {
-    //         Name = new ExternalCountryInfo.CountryNames {Common = countryName}, Borders = new List<string> {"Border1"}
-    //     };
-    //     var countryDto = new CountryDto {CommonName = countryName};
-    //
-    //     var externalCountryInfo = new ExternalCountryInfo
-    //     {
-    //         Name = new ExternalCountryInfo.CountryNames {Common = "TestCountry"},
-    //         Borders = new List<string> {"Border1"},
-    //         Capital = new List<string> {"TestCapital"}
-    //     };
-    //     var country = new Country {CommonName = countryName, Capital = "TestCapital"};
-    //
-    //     var countryInfoList = new List<ExternalCountryInfo> {externalCountryInfo};
-    //     var jsonString = JsonSerializer.Serialize(countryInfoList);
-    //
-    //     var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-    //     var response = new HttpResponseMessage
-    //     {
-    //         StatusCode = HttpStatusCode.OK,
-    //         Content = new StringContent(jsonString),
-    //     };
-    //
-    //     mockHttpMessageHandler
-    //         .Protected()
-    //         .Setup<Task<HttpResponseMessage>>(
-    //             "SendAsync",
-    //             ItExpr.IsAny<HttpRequestMessage>(),
-    //             ItExpr.IsAny<CancellationToken>()
-    //         )
-    //         .ReturnsAsync(response);
-    //
-    //     var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-    //     _mockHttpClientFactory.Setup(_ => _.CreateClient("restCountriesApiClient")).Returns(httpClient);
-    //
-    //     _mockCountryRepository.Setup(r => r.GetCountryByNameAsync(countryName, It.IsAny<CancellationToken>()))
-    //         .ReturnsAsync(country);
-    //     _mockMapper.Setup(m => m.Map<CountryDto>(It.IsAny<Country>())).Returns(countryDto);
-    //
-    //     // Act
-    //     var result = await _countryService.RetrieveAndSaveCountriesAsync(CancellationToken.None);
-    //
-    //     // Assert
-    //     Assert.NotNull(result);
-    //     var resultList = result.ToList();
-    //     Assert.Single(resultList);
-    //     Assert.Equal(countryName, resultList[0].CommonName);
-    //     _mockCacheService.Verify(s => s.Set(cacheKey, It.IsAny<IEnumerable<CountryDto>>(), It.IsAny<TimeSpan>()),
-    //         Times.Once);
-    // }
-
-
-    // [Fact]
-    // public async Task RetrieveAndSaveCountriesAsync_ShouldCreateAndReturnNewCountries_WhenCacheAndDatabaseMiss()
-    // {
-    //     // Arrange
-    //     var mockCountries = new List<ExternalCountryInfo> { /* Populate with test data */ };
-    //     var expectedCountries = new List<CountryDto> { /* Populate with expected DTOs */ };
-    //     var httpClientMock = new Mock<HttpClient>();
-    //     var httpResponse = new HttpResponseMessage
-    //     {
-    //         StatusCode = HttpStatusCode.OK,
-    //         Content = new StringContent(JsonSerializer.Serialize(mockCountries))
-    //     };
-    //     httpClientMock.Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-    //         .ReturnsAsync(httpResponse);
-    //     _mockCacheService.Setup(s => s.Get<IEnumerable<CountryDto>>(It.IsAny<string>()))
-    //         .Returns((IEnumerable<CountryDto>)null);
-    //     _mockCountryRepository.Setup(r => r.GetCountryByNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-    //         .ReturnsAsync((Country)null);
-    //     _mockMapper.Setup(m => m.Map<Country>(It.IsAny<ExternalCountryInfo>()))
-    //         .Returns(/* Logic to transform ExternalCountryInfo to Country */);
-    //     _mockMapper.Setup(m => m.Map<CountryDto>(It.IsAny<Country>()))
-    //         .Returns(/* Logic to transform Country to CountryDto */);
-    //
-    //     // Act
-    //     var result = await _countryService.RetrieveAndSaveCountriesAsync(CancellationToken.None);
-    //
-    //     // Assert
-    //     Assert.NotNull(result);
-    //     Assert.Equal(expectedCountries.Count, result.Count());
-    //     _mockCountryRepository.Verify(r => r.CreateCountryAsync(It.IsAny<Country>(), It.IsAny<CancellationToken>()), Times.Exactly(mockCountries.Count));
-    //     _mockCacheService.Verify(s => s.Set(It.IsAny<string>(), It.IsAny<IEnumerable<CountryDto>>(), It.IsAny<TimeSpan>()), Times.Once);
-    // }
     /// <summary>
     /// Tests whether RetrieveAndSaveCountriesAsync correctly retrieves and returns a country from the database
     /// when the requested country data is not available in the cache, but exists in the database.
@@ -355,4 +272,53 @@ public class CountryServiceTests
             Add(""); // Empty string
         }
     }
+
+    /// <summary>
+    /// Tests whether RetrieveAndSaveCountriesAsync correctly handles deserialization failures with invalid JSON data.
+    /// </summary>
+    /// <remarks>
+    /// This test uses theory data to simulate scenarios with invalid JSON content, including an empty string and
+    /// malformed JSON. It verifies that the method throws a JsonException, ensuring robust error handling
+    /// for incorrect response data formats.
+    /// </remarks>
+    [Theory]
+    [ClassData(typeof(InvalidJsonData))]
+    public async Task RetrieveAndSaveCountriesAsync_ShouldThrowJsonException_WhenDeserializationFails(
+        string invalidJsonString)
+    {
+        // Arrange
+        const string cacheKey = "All_Countries";
+        _mockCacheService.Setup(s => s.Get<IEnumerable<CountryDto>>(cacheKey)).Returns((IEnumerable<CountryDto>) null);
+
+        var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+        mockHttpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent(invalidJsonString)
+            });
+
+        var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+        _mockHttpClientFactory.Setup(f => f.CreateClient("restCountriesApiClient")).Returns(httpClient);
+
+        // Act & Assert
+        var exception = await Record.ExceptionAsync(() =>
+            _countryService.RetrieveAndSaveCountriesAsync(CancellationToken.None));
+
+        Assert.IsType<JsonException>(exception);
+    }
+
+    // Todo: Update the http mocking .. Create a private method to share it between tests..!DRY principle!
+
+    // Note: The RetrieveAndSaveCountryByNameAsync method also requires comprehensive testing similar to
+    // RetrieveAndSaveCountriesAsync, encompassing all the scenarios previously discussed. Although not
+    // elaborated here due to their similar nature and because RetrieveAndSaveCountryByNameAsync wasn't
+    // a primary focus of the initial challenge, it's important to ensure this method is thoroughly tested
+    // for robustness and reliability. ^_^
 }
