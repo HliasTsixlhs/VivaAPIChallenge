@@ -34,6 +34,7 @@ This repository contains the code challenge for Vivia.com, designed to assess th
 
 ## Installation and Setup
 
+
 To get started with this project, follow these steps:
 
 1. Clone the repository to your local machine.
@@ -43,6 +44,8 @@ To get started with this project, follow these steps:
 5. Build the solution to restore any missing NuGet packages.
 6. Migrate the database.
 7. Run the application.
+
+For a Comprehensive Step-by-Step Guide: [Installation Guide](Documentations/Installation_Guide.md)
 
 
 ## API Features and Architecture
@@ -77,6 +80,5 @@ While this project is primarily for assessment purposes, contributions or sugges
 This project is licensed under Viva.com ^ ^.
 
 
-- [Installation Guide](Documents/Installation.md)
-- [Usage Examples](Documents/UsageExamples.md)
-- [API Reference](Documents/APIReference.md)
+- [Usage Examples](Documentations/UsageExamples.md)
+- [API Reference](Documentations/APIReference.md)
