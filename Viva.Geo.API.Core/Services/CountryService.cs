@@ -158,7 +158,7 @@ public class CountryService : ICountryService
         {
             var client = _httpClientFactory.CreateClient("restCountriesApiClient");
 
-            var response = await client.GetAsync($"https://restcountries.com/v3.1/all", cancellationToken);
+            var response = await client.GetAsync("https://restcountries.com/v3.1/all", cancellationToken);
             response.EnsureSuccessStatusCode();
 
             var content = await response.Content.ReadAsStringAsync(cancellationToken);
