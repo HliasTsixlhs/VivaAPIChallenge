@@ -307,4 +307,52 @@ public class CountryServiceTests
         _mockCacheService.Verify(s => s.Set(cacheKey, It.IsAny<IEnumerable<CountryDto>>(), It.IsAny<TimeSpan>()),
             Times.Once);
     }
+
+    /// <summary>
+    /// Tests whether RetrieveAndSaveCountriesAsync correctly handles a failure in the external API call.
+    /// </summary>
+    /// <remarks>
+    /// Simulates a scenario where the call to the external RestCountries API results in an internal server error.
+    /// Verifies that the method properly handles this exception, ensuring robustness in case of external API disruptions.
+    /// </remarks>
+    [Fact]
+    public async Task RetrieveAndSaveCountriesAsync_ShouldThrowHttpRequestException_WhenExternalApiFails()
+    {
+        // Arrange
+        const string cacheKey = "All_Countries";
+        _mockCacheService.Setup(s => s.Get<IEnumerable<CountryDto>>(cacheKey)).Returns((IEnumerable<CountryDto>) null);
+
+        // Simulate an API failure
+        var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+        mockHttpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.InternalServerError,
+                Content = new StringContent("Internal Server Error")
+            });
+
+        var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+        _mockHttpClientFactory.Setup(f => f.CreateClient("restCountriesApiClient")).Returns(httpClient);
+
+        // Act & Assert
+        var exception = await Record.ExceptionAsync(() =>
+            _countryService.RetrieveAndSaveCountriesAsync(CancellationToken.None));
+
+        Assert.IsType<HttpRequestException>(exception);
+    }
+
+    private class InvalidJsonData : TheoryData<string>
+    {
+        public InvalidJsonData()
+        {
+            Add("Invalid JSON Content"); // Invalid JSON
+            Add(""); // Empty string
+        }
+    }
 }
