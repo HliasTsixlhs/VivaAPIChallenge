@@ -12,12 +12,12 @@ public class MappingProfile : Profile
     {
         CreateMap<ExternalCountryInfo, Country>()
             .ForMember(dest => dest.CommonName, opt => opt.MapFrom(src => src.Name.Common))
-            .ForMember(dest => dest.Capital, opt => opt.MapFrom(src => src.Capital.FirstOrDefault()));
+            .ForMember(dest => dest.Capital, opt => opt.MapFrom(src => src.Capital));
 
         // Mapping configuration for Country to CountryDto
         CreateMap<Country, CountryDto>()
             .ForMember(dest => dest.CommonName, opt => opt.MapFrom(src => src.CommonName))
-            .ForMember(dest => dest.Capital, opt => opt.MapFrom(src => src.Capital.FirstOrDefault()));
+            .ForMember(dest => dest.Capital, opt => opt.MapFrom(src => src.Capital));
 
         // Mapping configuration for Border to BorderDto
         CreateMap<Border, BorderDto>()
