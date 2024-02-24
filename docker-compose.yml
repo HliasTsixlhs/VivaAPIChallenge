@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  vivageoapi:
+    build:
+      context: .
+      dockerfile: Viva.Geo.API/Dockerfile
+      args:
+        BUILD_CONFIGURATION: Release
+    ports:
+      - "5266:80"    # Map host port 5266 to container port 80 (HTTP)
+      - "7160:443"   # Map host port 7160 to container port 443 (HTTPS)
+    environment:
+      ASPNETCORE_ENVIRONMENT: Release
+    networks:
+      - vivaGeoNetwork
+
+networks: # In case we want to include it to a network!!
+  vivaGeoNetwork:
+    driver: bridge
+    external: true
+  
+  # Viva.Geo.API Docker Compose Configuration Notes:
+  # Follow bellow steps to set up the network environment for Viva.Geo.API in Docker.
+  
+  # Step 1: Create an External Network
+  # This network allows various containers, including the Viva.Geo.API and the SQL Server, to communicate.
+  # Command: docker network create vivaGeoNetwork
+  
+  # Step 2: Connect the SQL Server Container to the Network
+  # This step is crucial for ensuring that the Viva.Geo.API container can communicate with the SQL Server container.
+  # Replace 'sqlserver' with the actual name of your SQL Server container.
+  # Command: docker network connect vivaGeoNetwork sqlserver
+  
+  # Step 3: Inspect the Network Configuration
+  # After setting up, inspect the network to verify that all necessary containers are connected correctly.
+  # This helps in debugging any network issues and ensuring proper communication between containers.
+  # Command: docker network inspect vivaGeoNetwork
+
+
