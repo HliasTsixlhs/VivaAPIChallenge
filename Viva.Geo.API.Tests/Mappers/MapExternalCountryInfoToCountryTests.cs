@@ -30,8 +30,8 @@ public class MapExternalCountryInfoToCountryTests
         // Arrange
         var externalCountryInfo = new ExternalCountryInfo
         {
-            Name = new ExternalCountryInfo.CountryNames {Common = "TestCountry"},
-            Capital = "TestCapital",
+            Name = new CountryNames {Common = "TestCountry"},
+            Capital = new List<string> {"TestCapital"},
         };
 
         // Act
@@ -57,8 +57,8 @@ public class MapExternalCountryInfoToCountryTests
         // Arrange
         var externalCountryInfo = new ExternalCountryInfo
         {
-            Name = new ExternalCountryInfo.CountryNames {Common = "TestCountry"},
-            Capital = "TestCapital",
+            Name = new CountryNames {Common = "TestCountry"},
+            Capital = new List<string> {"TestCapital"},
             Borders = new List<string> {"Border1", "Border2"}
         };
 

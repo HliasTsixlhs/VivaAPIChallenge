@@ -100,9 +100,9 @@ public class CountryServiceTests
         {
             new()
             {
-                Name = new ExternalCountryInfo.CountryNames {Common = "TestCountry"},
+                Name = new CountryNames {Common = "TestCountry"},
                 Borders = new List<string> {"Border1"},
-                Capital = "TestCapital"
+                Capital = new List<string> {"TestCapital"}
             }
         };
         var jsonString = JsonSerializer.Serialize(externalCountryInfo);
@@ -158,9 +158,9 @@ public class CountryServiceTests
         {
             new()
             {
-                Name = new ExternalCountryInfo.CountryNames {Common = "NewCountry"},
+                Name = new CountryNames {Common = "NewCountry"},
                 Borders = new List<string> {"Border1"},
-                Capital = "NewCapital"
+                Capital = new List<string> {"NewCapital"}
             }
         };
         var jsonString = JsonSerializer.Serialize(externalCountryInfos);
