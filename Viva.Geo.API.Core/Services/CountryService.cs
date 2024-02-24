@@ -47,13 +47,15 @@ public class CountryService : ICountryService
     public async Task<CountryDto> RetrieveAndSaveCountryByNameAsync(string name,
         CancellationToken cancellationToken = default)
     {
+        var eventId = _eventIdFactory.Create(VivaGeoApiEvent.CountryProcessing);
         var cacheKey = $"Country_{name}";
         var cachedCountry = _cacheService.Get<CountryDto>(cacheKey);
 
+
         if (cachedCountry != null)
         {
-            _logger.LogInformation(_eventIdFactory.Create(VivaGeoApiEvent.CountryProcessing),
-                "Retrieved country data for {name} from cache", name);
+            _logger.LogInformation(eventId: eventId,
+                message: "Retrieved country data for {name} from cache", name);
             return cachedCountry;
         }
 
@@ -100,8 +102,9 @@ public class CountryService : ICountryService
             var result = _mapper.Map<CountryDto>(savedCountry);
             result.Borders = borders.Select(b => b.BorderCode).ToList();
 
-            _logger.LogInformation(_eventIdFactory.Create(VivaGeoApiEvent.CountryProcessing),
-                "Setting country data for {name} in cache", name);
+            _logger.LogInformation(
+                eventId: eventId,
+                message: "Setting country data for {name} in cache", name);
             _cacheService.Set(cacheKey, result, TimeSpan.FromMinutes(5));
             return result;
         }
@@ -112,13 +115,16 @@ public class CountryService : ICountryService
     public async Task<IEnumerable<CountryDto>> RetrieveAndSaveCountriesAsync(
         CancellationToken cancellationToken = default)
     {
+        var eventId = _eventIdFactory.Create(VivaGeoApiEvent.CountryProcessing);
+
         const string cacheKey = "All_Countries";
         var cachedCountries = _cacheService.Get<IEnumerable<CountryDto>>(cacheKey);
 
         if (cachedCountries != null)
         {
-            _logger.LogInformation(_eventIdFactory.Create(VivaGeoApiEvent.CountryProcessing),
-                "Retrieved all countries from cache");
+            _logger.LogInformation(
+                eventId: eventId,
+                message: "Retrieved all countries from cache");
             return cachedCountries;
         }
 
@@ -168,8 +174,9 @@ public class CountryService : ICountryService
             results.Add(result);
         }
 
-        _logger.LogInformation(_eventIdFactory.Create(VivaGeoApiEvent.CountryProcessing),
-            "Setting all countries data in cache");
+        _logger.LogInformation(
+            eventId: eventId,
+            message: "Setting all countries data in cache");
         _cacheService.Set(cacheKey, results, TimeSpan.FromMinutes(5));
         return results;
     }

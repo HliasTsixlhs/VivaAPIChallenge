@@ -30,15 +30,20 @@ public class CountriesController : ControllerBase
 
         using (_logger.BeginScope("TraceId: {TraceId}", traceId))
         {
-            _logger.LogInformation(eventId, "Retrieving and saving countries. TraceId: {TraceId}", traceId);
+            _logger.LogInformation(
+                eventId: eventId,
+                message: "Retrieving and saving countries.");
+
             var countries = await _countryService.RetrieveAndSaveCountriesAsync();
             if (countries == null || !countries.Any())
             {
                 return NotFound("No countries data found.");
             }
 
-            _logger.LogInformation(eventId, "Successfully retrieved and saved countries data. TraceId: {TraceId}",
-                traceId);
+            _logger.LogInformation(
+                eventId: eventId,
+                message: "Successfully retrieved and saved countries data.");
+
             return Ok(countries);
         }
     }

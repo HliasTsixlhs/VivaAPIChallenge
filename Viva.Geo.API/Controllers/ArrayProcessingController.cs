@@ -33,8 +33,9 @@ public class ArrayProcessingController : ControllerBase
 
         using (_logger.BeginScope("TraceId: {TraceId}", traceId))
         {
-            _logger.LogInformation(eventId,
-                "Processing array to find the second largest integer. Array: {Array}",
+            _logger.LogInformation(
+                eventId: eventId,
+                message: "Processing array to find the second largest integer. Array: {Array}",
                 request.Numbers);
 
 

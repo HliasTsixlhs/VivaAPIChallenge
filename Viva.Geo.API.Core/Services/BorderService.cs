@@ -30,13 +30,15 @@ public class BorderService : IBorderService
 
     public async Task<BorderDto> CreateOrUpdateBorderAsync(Border border, CancellationToken cancellationToken = default)
     {
+        var eventId = _eventIdFactory.Create(VivaGeoApiEvent.BorderProcessing);
         var cacheKey = $"border_{border.BorderCode}";
         var cachedBorderDto = _cacheService.Get<BorderDto>(cacheKey);
 
         if (cachedBorderDto != null)
         {
-            _logger.LogInformation(_eventIdFactory.Create(VivaGeoApiEvent.BorderProcessing),
-                "Fetched border with code {BorderCode} from cache", border.BorderCode);
+            _logger.LogInformation(
+                eventId,
+                message: "Fetched border with code {BorderCode} from cache", border.BorderCode);
             return cachedBorderDto;
         }
 
@@ -49,20 +51,24 @@ public class BorderService : IBorderService
         {
             existingBorder = await _borderRepository.CreateAsync(border, cancellationToken);
             await _borderRepository.CommitAsync(cancellationToken);
-            _logger.LogInformation(_eventIdFactory.Create(VivaGeoApiEvent.BorderProcessing),
-                "Created new border with code {BorderCode}", border.BorderCode);
+            _logger.LogInformation(
+                eventId: eventId,
+                message: "Created new border with code {BorderCode}", border.BorderCode);
         }
         else
         {
             existingBorder = borders.First();
-            _logger.LogInformation(_eventIdFactory.Create(VivaGeoApiEvent.BorderProcessing),
-                "Existing border with code {BorderCode} found, no new creation", border.BorderCode);
+            _logger.LogInformation(
+                eventId: eventId,
+                message: "Existing border with code {BorderCode} found, no new creation", border.BorderCode);
         }
 
         var borderDto = _mapper.Map<BorderDto>(existingBorder);
         _cacheService.Set(cacheKey, borderDto, TimeSpan.FromMinutes(5));
-        _logger.LogInformation(_eventIdFactory.Create(VivaGeoApiEvent.BorderProcessing),
-            "Updated cache for border with code {BorderCode}", border.BorderCode);
+
+        _logger.LogInformation(
+            eventId: eventId,
+            message: "Updated cache for border with code {BorderCode}", border.BorderCode);
 
         return borderDto;
     }

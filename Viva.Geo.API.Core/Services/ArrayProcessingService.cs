@@ -33,19 +33,28 @@ public class ArrayProcessingService : IArrayProcessingService
     public int FindSecondLargest(IEnumerable<int> numbers)
     {
         var eventId = _eventIdFactory.Create(VivaGeoApiEvent.ArrayProcessing);
-        _logger.LogInformation(eventId, "Finding the second largest number in the array.");
+        _logger.LogInformation(
+            eventId: eventId,
+            message: "Finding the second largest number in the array.");
 
         var enumerable = numbers as int[] ?? numbers.ToArray();
         if (enumerable.Distinct().Count() < 2)
         {
             const string errorMessage = "Insufficient number of distinct elements in the array for processing.";
+
             var exception = new InsufficientUniqueElementsException(errorMessage);
-            _logger.LogError(eventId: eventId, exception: exception, message: errorMessage);
+            _logger.LogError(
+                eventId: eventId,
+                exception: exception,
+                message: errorMessage);
+
             throw new InsufficientUniqueElementsException(errorMessage);
         }
 
         var secondLargest = enumerable.OrderByDescending(n => n).Distinct().Skip(1).First();
-        _logger.LogInformation(eventId, "The second largest number found: {SecondLargest}", secondLargest);
+        _logger.LogInformation(
+            eventId: eventId,
+            message: "The second largest number found: {SecondLargest}", secondLargest);
 
         return secondLargest;
     }
