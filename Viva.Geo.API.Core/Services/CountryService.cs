@@ -59,54 +59,80 @@ public class CountryService : ICountryService
             return cachedCountry;
         }
 
-        var client = _httpClientFactory.CreateClient("restCountriesApiClient");
-        var response =
-            await client.GetAsync($"https://restcountries.com/v3.1/name/{name}", cancellationToken);
-        response.EnsureSuccessStatusCode();
-
-        var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        var externalCountryInfos = JsonSerializer.Deserialize<List<ExternalCountryInfo>>(content,
-            new JsonSerializerOptions {PropertyNameCaseInsensitive = true});
-
-        if (externalCountryInfos == null) return null;
-        foreach (var info in externalCountryInfos)
+        try
         {
-            var existingCountry =
-                await _countryRepository.GetCountryByNameAsync(info.Name.Common, cancellationToken);
+            var client = _httpClientFactory.CreateClient("restCountriesApiClient");
+            var response =
+                await client.GetAsync($"https://restcountries.com/v3.1/name/{name}", cancellationToken);
+            response.EnsureSuccessStatusCode();
 
-            Country savedCountry;
-            if (existingCountry == null)
+            var content = await response.Content.ReadAsStringAsync(cancellationToken);
+            var externalCountryInfos = JsonSerializer.Deserialize<List<ExternalCountryInfo>>(content,
+                new JsonSerializerOptions {PropertyNameCaseInsensitive = true});
+
+            if (externalCountryInfos == null) return null;
+            foreach (var info in externalCountryInfos)
             {
-                var country = _mapper.Map<Country>(info);
-                savedCountry = await _countryRepository.CreateCountryAsync(country, cancellationToken);
-                await _countryRepository.CommitAsync(cancellationToken);
+                var existingCountry =
+                    await _countryRepository.GetCountryByNameAsync(info.Name.Common, cancellationToken);
+
+                Country savedCountry;
+                if (existingCountry == null)
+                {
+                    var country = _mapper.Map<Country>(info);
+                    savedCountry = await _countryRepository.CreateCountryAsync(country, cancellationToken);
+                    await _countryRepository.CommitAsync(cancellationToken);
+                }
+                else
+                {
+                    savedCountry = existingCountry;
+                }
+
+                if (info.Borders == null) continue;
+                var borders = new List<BorderDto>();
+                foreach (var borderCode in info.Borders)
+                {
+                    var savedBorder =
+                        await _borderService.CreateOrUpdateBorderAsync(new Border {BorderCode = borderCode},
+                            cancellationToken);
+
+                    await _countryBorderService.AssociateCountryAndBorderAsync(savedCountry.CountryId,
+                        savedBorder.BorderId, cancellationToken);
+                    borders.Add(savedBorder);
+                }
+
+                var result = _mapper.Map<CountryDto>(savedCountry);
+                result.Borders = borders.Select(b => b.BorderCode).ToList();
+
+                _logger.LogInformation(
+                    eventId: eventId,
+                    message: "Setting country data for {name} in cache", name);
+                _cacheService.Set(cacheKey, result, TimeSpan.FromMinutes(5));
+                return result;
             }
-            else
-            {
-                savedCountry = existingCountry;
-            }
-
-            if (info.Borders == null) continue;
-            var borders = new List<BorderDto>();
-            foreach (var borderCode in info.Borders)
-            {
-                var savedBorder =
-                    await _borderService.CreateOrUpdateBorderAsync(new Border {BorderCode = borderCode},
-                        cancellationToken);
-
-                await _countryBorderService.AssociateCountryAndBorderAsync(savedCountry.CountryId,
-                    savedBorder.BorderId, cancellationToken);
-                borders.Add(savedBorder);
-            }
-
-            var result = _mapper.Map<CountryDto>(savedCountry);
-            result.Borders = borders.Select(b => b.BorderCode).ToList();
-
-            _logger.LogInformation(
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(
                 eventId: eventId,
-                message: "Setting country data for {name} in cache", name);
-            _cacheService.Set(cacheKey, result, TimeSpan.FromMinutes(5));
-            return result;
+                exception: ex,
+                message: "HttpRequestException occurred while calling external API.");
+            throw;
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogError(
+                eventId: eventId,
+                exception: ex,
+                message: "JsonException occurred while trying to deserialize external's API data.");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(eventId: eventId,
+                exception: ex,
+                message: "An error occurred during API call or deserialization.");
+            throw;
         }
 
         return null;
@@ -128,56 +154,82 @@ public class CountryService : ICountryService
             return cachedCountries;
         }
 
-        var client = _httpClientFactory.CreateClient("restCountriesApiClient");
-
-        var response = await client.GetAsync($"https://restcountries.com/v3.1/all", cancellationToken);
-        response.EnsureSuccessStatusCode();
-
-        var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        var externalCountryInfos = JsonSerializer.Deserialize<List<ExternalCountryInfo>>(content,
-            new JsonSerializerOptions {PropertyNameCaseInsensitive = true});
-
-        if (externalCountryInfos == null) return null;
-        var results = new List<CountryDto>();
-        foreach (var info in externalCountryInfos)
+        try
         {
-            var existingCountry =
-                await _countryRepository.GetCountryByNameAsync(info.Name.Common, cancellationToken);
+            var client = _httpClientFactory.CreateClient("restCountriesApiClient");
 
-            Country savedCountry;
-            if (existingCountry == null)
+            var response = await client.GetAsync($"https://restcountries.com/v3.1/all", cancellationToken);
+            response.EnsureSuccessStatusCode();
+
+            var content = await response.Content.ReadAsStringAsync(cancellationToken);
+            var externalCountryInfos = JsonSerializer.Deserialize<List<ExternalCountryInfo>>(content,
+                new JsonSerializerOptions {PropertyNameCaseInsensitive = true});
+
+            if (externalCountryInfos == null) return null;
+            var results = new List<CountryDto>();
+            foreach (var info in externalCountryInfos)
             {
-                var country = _mapper.Map<Country>(info);
-                savedCountry = await _countryRepository.CreateCountryAsync(country, cancellationToken);
-                await _countryRepository.CommitAsync(cancellationToken);
-            }
-            else
-            {
-                savedCountry = existingCountry;
+                var existingCountry =
+                    await _countryRepository.GetCountryByNameAsync(info.Name.Common, cancellationToken);
+
+                Country savedCountry;
+                if (existingCountry == null)
+                {
+                    var country = _mapper.Map<Country>(info);
+                    savedCountry = await _countryRepository.CreateCountryAsync(country, cancellationToken);
+                    await _countryRepository.CommitAsync(cancellationToken);
+                }
+                else
+                {
+                    savedCountry = existingCountry;
+                }
+
+                if (info.Borders == null) continue;
+                var borders = new List<BorderDto>();
+                foreach (var borderCode in info.Borders)
+                {
+                    var savedBorder =
+                        await _borderService.CreateOrUpdateBorderAsync(new Border {BorderCode = borderCode},
+                            cancellationToken);
+
+                    await _countryBorderService.AssociateCountryAndBorderAsync(savedCountry.CountryId,
+                        savedBorder.BorderId, cancellationToken);
+                    borders.Add(savedBorder);
+                }
+
+                var result = _mapper.Map<CountryDto>(savedCountry);
+                result.Borders = borders.Select(b => b.BorderCode).ToList();
+                results.Add(result);
             }
 
-            if (info.Borders == null) continue;
-            var borders = new List<BorderDto>();
-            foreach (var borderCode in info.Borders)
-            {
-                var savedBorder =
-                    await _borderService.CreateOrUpdateBorderAsync(new Border {BorderCode = borderCode},
-                        cancellationToken);
-
-                await _countryBorderService.AssociateCountryAndBorderAsync(savedCountry.CountryId,
-                    savedBorder.BorderId, cancellationToken);
-                borders.Add(savedBorder);
-            }
-
-            var result = _mapper.Map<CountryDto>(savedCountry);
-            result.Borders = borders.Select(b => b.BorderCode).ToList();
-            results.Add(result);
+            _logger.LogInformation(
+                eventId: eventId,
+                message: "Setting all countries data in cache");
+            _cacheService.Set(cacheKey, results, TimeSpan.FromMinutes(5));
+            return results;
         }
-
-        _logger.LogInformation(
-            eventId: eventId,
-            message: "Setting all countries data in cache");
-        _cacheService.Set(cacheKey, results, TimeSpan.FromMinutes(5));
-        return results;
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(
+                eventId: eventId,
+                exception: ex,
+                message: "HttpRequestException occurred while calling external API.");
+            throw;
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogError(
+                eventId: eventId,
+                exception: ex,
+                message: "JsonException occurred while trying to deserialize external's API data.");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(eventId: eventId,
+                exception: ex,
+                message: "An error occurred during API call or deserialization.");
+            throw;
+        }
     }
 }
