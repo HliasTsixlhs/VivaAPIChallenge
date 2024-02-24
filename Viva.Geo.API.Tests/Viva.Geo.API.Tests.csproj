@@ -22,4 +22,8 @@
         </PackageReference>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Viva.Geo.API\Viva.Geo.API.csproj" />
+    </ItemGroup>
+
 </Project>
