@@ -161,4 +161,75 @@ public class CountryServiceTests
     //     _mockCountryRepository.Verify(r => r.CreateCountryAsync(It.IsAny<Country>(), It.IsAny<CancellationToken>()), Times.Exactly(mockCountries.Count));
     //     _mockCacheService.Verify(s => s.Set(It.IsAny<string>(), It.IsAny<IEnumerable<CountryDto>>(), It.IsAny<TimeSpan>()), Times.Once);
     // }
+    /// <summary>
+    /// Tests whether RetrieveAndSaveCountriesAsync correctly retrieves and returns a country from the database
+    /// when the requested country data is not available in the cache, but exists in the database.
+    /// </summary>
+    /// <remarks>
+    /// This test ensures that the method properly queries the country repository when the cache misses,
+    /// confirming that it correctly handles the scenario where the requested country data needs to be fetched
+    /// from an external API and is already stored in the database. It verifies the integration of different
+    /// components (cache, external API, and repository) in retrieving country data.
+    /// </remarks>
+    [Fact]
+    public async Task
+        RetrieveAndSaveCountriesAsync_ShouldReturnExistingCountryFromDatabase_WhenCacheMissAndDatabaseHit()
+    {
+        // Arrange
+        const string cacheKey = "All_Countries";
+        _mockCacheService.Setup(s => s.Get<IEnumerable<CountryDto>>(cacheKey)).Returns((IEnumerable<CountryDto>) null);
+
+        var externalCountryInfo = new List<ExternalCountryInfo>
+        {
+            new()
+            {
+                Name = new ExternalCountryInfo.CountryNames {Common = "TestCountry"},
+                Borders = new List<string> {"Border1"},
+                Capital = new List<string> {"TestCapital"}
+            }
+        };
+        var jsonString = JsonSerializer.Serialize(externalCountryInfo);
+
+        var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+        var response = new HttpResponseMessage
+        {
+            StatusCode = HttpStatusCode.OK,
+            Content = new StringContent(jsonString)
+        };
+
+        mockHttpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(response);
+
+        var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+        _mockHttpClientFactory.Setup(f => f.CreateClient("restCountriesApiClient")).Returns(httpClient);
+
+        var country = new Country {CommonName = "TestCountry", Capital = "TestCapital"};
+        _mockCountryRepository.Setup(r => r.GetCountryByNameAsync("TestCountry", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(country);
+
+        var countryDto = new CountryDto
+            {CommonName = "TestCountry", Capital = "TestCapital", Borders = new List<string> {"Border1"}};
+        _mockMapper.Setup(m => m.Map<CountryDto>(It.IsAny<Country>())).Returns(countryDto);
+
+        // Mock BorderService's CreateOrUpdateBorderAsync method
+        var borderDto = new BorderDto {BorderCode = "Border1"};
+        _mockBorderService.Setup(s => s.CreateOrUpdateBorderAsync(It.IsAny<Border>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(borderDto);
+        // Act
+        var result = await _countryService.RetrieveAndSaveCountriesAsync(CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        var resultList = result.ToList();
+        Assert.Single(resultList);
+        Assert.Equal("TestCountry", resultList[0].CommonName);
+        _mockCacheService.Verify(s => s.Set(cacheKey, It.IsAny<IEnumerable<CountryDto>>(), It.IsAny<TimeSpan>()),
+            Times.Once);
+    }
 }
