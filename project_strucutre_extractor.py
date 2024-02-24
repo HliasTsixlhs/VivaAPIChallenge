@@ -19,4 +19,4 @@ def list_folder_structure(parent_folder, file_extensions=None, exclude_folders=N
 
 
 # Example usage
-list_folder_structure('D:\IliasTsichlis\Bank.API')
+list_folder_structure('D:\Challenges\VivaAPIChallenge')
