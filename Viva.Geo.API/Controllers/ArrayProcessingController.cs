@@ -29,9 +29,9 @@ public class ArrayProcessingController : ControllerBase
     public IActionResult FindSecondLargest([FromBody] SecondLargestIntegerRequest request)
     {
         var eventId = _eventIdFactory.Create(VivaGeoApiEvent.ArrayProcessing);
-        var traceId = HttpContext.TraceIdentifier;
+        var connectionRemotePort = HttpContext.Connection.RemotePort;
 
-        using (_logger.BeginScope("TraceId: {TraceId}", traceId))
+        using (_logger.BeginScope(new Dictionary<string, object> {["ConnectionRemotePort"] = connectionRemotePort}))
         {
             _logger.LogInformation(
                 eventId: eventId,

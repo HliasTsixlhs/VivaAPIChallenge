@@ -26,9 +26,9 @@ public class CountriesController : ControllerBase
     public async Task<IActionResult> RetrieveAndSaveCountries()
     {
         var eventId = _eventIdFactory.Create(VivaGeoApiEvent.CountryProcessing);
-        var traceId = HttpContext.TraceIdentifier;
+        var connectionRemotePort = HttpContext.Connection.RemotePort;
 
-        using (_logger.BeginScope("TraceId: {TraceId}", traceId))
+        using (_logger.BeginScope(new Dictionary<string, object> {["ConnectionRemotePort"] = connectionRemotePort}))
         {
             _logger.LogInformation(
                 eventId: eventId,
@@ -54,9 +54,8 @@ public class CountriesController : ControllerBase
         var eventId = _eventIdFactory.Create(VivaGeoApiEvent.CountryProcessing);
         var traceId = HttpContext.TraceIdentifier;
 
-        using (_logger.BeginScope("TraceId: {TraceId}", traceId))
+        using (_logger.BeginScope(new Dictionary<string, object> {["ConnectionRemotePort"] = connectionRemotePort}))
         {
-            _logger.LogInformation(eventId, "Retrieving and saving country for: {countryName}. TraceId: {TraceId}",
                 countryName, traceId);
 
             var countryDto = await _countryService.RetrieveAndSaveCountryByNameAsync(countryName);
