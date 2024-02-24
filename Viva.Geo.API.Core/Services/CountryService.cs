@@ -8,6 +8,7 @@ using Viva.Geo.API.Common.Dtos.Borders.Responses;
 using Viva.Geo.API.Common.Dtos.Countries.Responses;
 using Viva.Geo.API.Core.Abstractions.Repositories;
 using Viva.Geo.API.Core.Abstractions.Services;
+using Viva.Geo.API.Core.Constants;
 using Viva.Geo.API.Core.Models;
 using Viva.Geo.API.DataAccess.DataAccessModels;
 
@@ -61,9 +62,9 @@ public class CountryService : ICountryService
 
         try
         {
-            var client = _httpClientFactory.CreateClient("restCountriesApiClient");
+            var client = _httpClientFactory.CreateClient(HttpClientConstants.RestCountriesApiClientName);
             var response =
-                await client.GetAsync($"https://restcountries.com/v3.1/name/{name}", cancellationToken);
+                await client.GetAsync($"{HttpClientConstants.RestCountriesByNameEndpoint}{name}", cancellationToken);
             response.EnsureSuccessStatusCode();
 
             var content = await response.Content.ReadAsStringAsync(cancellationToken);
@@ -158,7 +159,7 @@ public class CountryService : ICountryService
         {
             var client = _httpClientFactory.CreateClient("restCountriesApiClient");
 
-            var response = await client.GetAsync("https://restcountries.com/v3.1/all", cancellationToken);
+            var response = await client.GetAsync(HttpClientConstants.RestCountriesAllEndpoint, cancellationToken);
             response.EnsureSuccessStatusCode();
 
             var content = await response.Content.ReadAsStringAsync(cancellationToken);

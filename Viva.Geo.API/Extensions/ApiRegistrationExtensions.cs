@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Viva.Geo.API.Core.Abstractions.Repositories;
 using Viva.Geo.API.Core.Abstractions.Services;
+using Viva.Geo.API.Core.Constants;
 using Viva.Geo.API.Core.Exceptions;
 using Viva.Geo.API.Core.Repositories;
 using Viva.Geo.API.Core.Services;
@@ -37,9 +38,9 @@ public static class ApiRegistrationExtensions
     public static IServiceCollection AddClients(this IServiceCollection services)
     {
         // Configure HttpClient for rest countries API
-        services.AddHttpClient("restCountriesApiClient", client =>
+        services.AddHttpClient(HttpClientConstants.RestCountriesApiClientName, client =>
         {
-            client.BaseAddress = new Uri("https://restcountries.com/v3.1/all");
+            client.BaseAddress = new Uri(HttpClientConstants.RestCountriesAllEndpoint);
             client.DefaultRequestHeaders.Add("Accept", "application/json");
         });
 

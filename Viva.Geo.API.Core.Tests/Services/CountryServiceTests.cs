@@ -10,6 +10,7 @@ using Viva.Geo.API.Common.Dtos.Borders.Responses;
 using Viva.Geo.API.Common.Dtos.Countries.Responses;
 using Viva.Geo.API.Core.Abstractions.Repositories;
 using Viva.Geo.API.Core.Abstractions.Services;
+using Viva.Geo.API.Core.Constants;
 using Viva.Geo.API.Core.Models;
 using Viva.Geo.API.Core.Services;
 using Viva.Geo.API.DataAccess.DataAccessModels;
@@ -111,7 +112,8 @@ public class CountryServiceTests
         SetupHttpClientMock(mockHttpMessageHandler, HttpStatusCode.OK, jsonString);
 
         var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-        _mockHttpClientFactory.Setup(f => f.CreateClient("restCountriesApiClient")).Returns(httpClient);
+        _mockHttpClientFactory.Setup(f => f.CreateClient(HttpClientConstants.RestCountriesApiClientName))
+            .Returns(httpClient);
 
         var country = new Country {CommonName = "TestCountry", Capital = "TestCapital"};
         _mockCountryRepository.Setup(r => r.GetCountryByNameAsync("TestCountry", It.IsAny<CancellationToken>()))
@@ -170,7 +172,8 @@ public class CountryServiceTests
         SetupHttpClientMock(mockHttpMessageHandler, HttpStatusCode.OK, jsonString);
 
         var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-        _mockHttpClientFactory.Setup(f => f.CreateClient("restCountriesApiClient")).Returns(httpClient);
+        _mockHttpClientFactory.Setup(f => f.CreateClient(HttpClientConstants.RestCountriesApiClientName))
+            .Returns(httpClient);
 
         _mockCountryRepository.Setup(r => r.GetCountryByNameAsync("NewCountry", It.IsAny<CancellationToken>()))
             .ReturnsAsync((Country) null);
@@ -220,7 +223,8 @@ public class CountryServiceTests
         SetupHttpClientMock(mockHttpMessageHandler, HttpStatusCode.InternalServerError, internalServerError);
 
         var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-        _mockHttpClientFactory.Setup(f => f.CreateClient("restCountriesApiClient")).Returns(httpClient);
+        _mockHttpClientFactory.Setup(f => f.CreateClient(HttpClientConstants.RestCountriesApiClientName))
+            .Returns(httpClient);
 
         // Act & Assert
         var exception = await Record.ExceptionAsync(() =>
@@ -259,7 +263,8 @@ public class CountryServiceTests
         SetupHttpClientMock(mockHttpMessageHandler, HttpStatusCode.OK, invalidJsonString);
 
         var httpClient = new HttpClient(mockHttpMessageHandler.Object);
-        _mockHttpClientFactory.Setup(f => f.CreateClient("restCountriesApiClient")).Returns(httpClient);
+        _mockHttpClientFactory.Setup(f => f.CreateClient(HttpClientConstants.RestCountriesApiClientName))
+            .Returns(httpClient);
 
         // Act & Assert
         var exception = await Record.ExceptionAsync(() =>
