@@ -7,9 +7,9 @@ services:
       dockerfile: Viva.Geo.API/Dockerfile
       args:
         BUILD_CONFIGURATION: Release
-    ports:
+    ports: # The https will need certificates.. read the how_to_configure_https_in_docker_for_asp_net_core at GeneralNotes folder.
       - "5266:80"    # Map host port 5266 to container port 80 (HTTP)
-      - "7160:443"   # Map host port 7160 to container port 443 (HTTPS)
+      - "7160:443"   # Map host port 7160 to container port 443 (HTTPS) 
     environment:
       ASPNETCORE_ENVIRONMENT: Release
     networks:
