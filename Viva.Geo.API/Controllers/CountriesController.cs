@@ -1,4 +1,5 @@
-﻿using Common.Logging.Serilog.Enums;
+﻿using Asp.Versioning;
+using Common.Logging.Serilog.Enums;
 using Common.Logging.Serilog.Factories.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 using Viva.Geo.API.Core.Abstractions.Services;
@@ -6,7 +7,10 @@ using Viva.Geo.API.Core.Abstractions.Services;
 namespace Viva.Geo.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
+[Consumes("application/json")]
+[Produces("application/json")]
 public class CountriesController : ControllerBase
 {
     private readonly ICountryService _countryService;

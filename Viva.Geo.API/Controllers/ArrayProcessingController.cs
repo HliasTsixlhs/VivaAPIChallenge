@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Asp.Versioning;
+using Microsoft.AspNetCore.Mvc;
 using Viva.Geo.API.Core.Abstractions.Services;
 using Viva.Geo.API.Common.Dtos.ArrayProcessing.Requests;
 using Viva.Geo.API.Common.Dtos.ArrayProcessing.Responses;
@@ -8,7 +9,10 @@ using Common.Logging.Serilog.Factories.Abstractions;
 namespace Viva.Geo.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
+[Consumes("application/json")]
+[Produces("application/json")]
 public class ArrayProcessingController : ControllerBase
 {
     private readonly IArrayProcessingService _arrayProcessingService;
