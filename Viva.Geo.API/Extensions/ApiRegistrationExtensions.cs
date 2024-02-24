@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Diagnostics;
+﻿using System.Text.Json;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Viva.Geo.API.Core.Abstractions.Repositories;
 using Viva.Geo.API.Core.Abstractions.Services;
@@ -103,6 +104,16 @@ public static class ApiRegistrationExtensions
                     case InsufficientUniqueElementsException ex:
                         ctx.ProblemDetails.Status = StatusCodes.Status400BadRequest;
                         ctx.ProblemDetails.Title = "Insufficient Unique Elements";
+                        ctx.ProblemDetails.Detail = ex.Message;
+                        break;
+                    case HttpRequestException ex:
+                        ctx.ProblemDetails.Status = StatusCodes.Status503ServiceUnavailable;
+                        ctx.ProblemDetails.Title = "External Service Unavailable";
+                        ctx.ProblemDetails.Detail = ex.Message;
+                        break;
+                    case JsonException ex:
+                        ctx.ProblemDetails.Status = StatusCodes.Status500InternalServerError;
+                        ctx.ProblemDetails.Title = "Deserialization Error";
                         ctx.ProblemDetails.Detail = ex.Message;
                         break;
                     // Add more cases for other custom exceptions if necessary
