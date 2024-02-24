@@ -102,26 +102,13 @@ public class CountryServiceTests
             {
                 Name = new ExternalCountryInfo.CountryNames {Common = "TestCountry"},
                 Borders = new List<string> {"Border1"},
-                Capital = new List<string> {"TestCapital"}
+                Capital = "TestCapital"
             }
         };
         var jsonString = JsonSerializer.Serialize(externalCountryInfo);
 
         var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-        var response = new HttpResponseMessage
-        {
-            StatusCode = HttpStatusCode.OK,
-            Content = new StringContent(jsonString)
-        };
-
-        mockHttpMessageHandler
-            .Protected()
-            .Setup<Task<HttpResponseMessage>>(
-                "SendAsync",
-                ItExpr.IsAny<HttpRequestMessage>(),
-                ItExpr.IsAny<CancellationToken>()
-            )
-            .ReturnsAsync(response);
+        SetupHttpClientMock(mockHttpMessageHandler, HttpStatusCode.OK, jsonString);
 
         var httpClient = new HttpClient(mockHttpMessageHandler.Object);
         _mockHttpClientFactory.Setup(f => f.CreateClient("restCountriesApiClient")).Returns(httpClient);
@@ -169,31 +156,18 @@ public class CountryServiceTests
 
         var externalCountryInfos = new List<ExternalCountryInfo>
         {
-            new ExternalCountryInfo
+            new()
             {
                 Name = new ExternalCountryInfo.CountryNames {Common = "NewCountry"},
                 Borders = new List<string> {"Border1"},
-                Capital = new List<string> {"NewCapital"}
+                Capital = "NewCapital"
             }
         };
         var jsonString = JsonSerializer.Serialize(externalCountryInfos);
 
 
         var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-        var response = new HttpResponseMessage
-        {
-            StatusCode = HttpStatusCode.OK,
-            Content = new StringContent(jsonString)
-        };
-
-        mockHttpMessageHandler
-            .Protected()
-            .Setup<Task<HttpResponseMessage>>(
-                "SendAsync",
-                ItExpr.IsAny<HttpRequestMessage>(),
-                ItExpr.IsAny<CancellationToken>()
-            )
-            .ReturnsAsync(response);
+        SetupHttpClientMock(mockHttpMessageHandler, HttpStatusCode.OK, jsonString);
 
         var httpClient = new HttpClient(mockHttpMessageHandler.Object);
         _mockHttpClientFactory.Setup(f => f.CreateClient("restCountriesApiClient")).Returns(httpClient);
@@ -240,19 +214,10 @@ public class CountryServiceTests
         _mockCacheService.Setup(s => s.Get<IEnumerable<CountryDto>>(cacheKey)).Returns((IEnumerable<CountryDto>) null);
 
         // Simulate an API failure
+        const string internalServerError = "Internal Server Error";
+
         var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-        mockHttpMessageHandler
-            .Protected()
-            .Setup<Task<HttpResponseMessage>>(
-                "SendAsync",
-                ItExpr.IsAny<HttpRequestMessage>(),
-                ItExpr.IsAny<CancellationToken>()
-            )
-            .ReturnsAsync(new HttpResponseMessage
-            {
-                StatusCode = HttpStatusCode.InternalServerError,
-                Content = new StringContent("Internal Server Error")
-            });
+        SetupHttpClientMock(mockHttpMessageHandler, HttpStatusCode.InternalServerError, internalServerError);
 
         var httpClient = new HttpClient(mockHttpMessageHandler.Object);
         _mockHttpClientFactory.Setup(f => f.CreateClient("restCountriesApiClient")).Returns(httpClient);
@@ -291,18 +256,7 @@ public class CountryServiceTests
         _mockCacheService.Setup(s => s.Get<IEnumerable<CountryDto>>(cacheKey)).Returns((IEnumerable<CountryDto>) null);
 
         var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
-        mockHttpMessageHandler
-            .Protected()
-            .Setup<Task<HttpResponseMessage>>(
-                "SendAsync",
-                ItExpr.IsAny<HttpRequestMessage>(),
-                ItExpr.IsAny<CancellationToken>()
-            )
-            .ReturnsAsync(new HttpResponseMessage
-            {
-                StatusCode = HttpStatusCode.OK,
-                Content = new StringContent(invalidJsonString)
-            });
+        SetupHttpClientMock(mockHttpMessageHandler, HttpStatusCode.OK, invalidJsonString);
 
         var httpClient = new HttpClient(mockHttpMessageHandler.Object);
         _mockHttpClientFactory.Setup(f => f.CreateClient("restCountriesApiClient")).Returns(httpClient);
@@ -314,7 +268,33 @@ public class CountryServiceTests
         Assert.IsType<JsonException>(exception);
     }
 
-    // Todo: Update the http mocking .. Create a private method to share it between tests..!DRY principle!
+    /// <summary>
+    /// Sets up the mock HTTP message handler to return a specific HTTP response.
+    /// </summary>
+    /// <param name="mockHttpMessageHandler">The mock HTTP message handler.</param>
+    /// <param name="statusCode">The HTTP status code to be returned in the response.</param>
+    /// <param name="content">The content to be included in the response body.</param>
+    /// <remarks>
+    /// This method centralizes the setup for HTTP response mocking, ensuring consistency and reducing redundancy 
+    /// across different tests. By following the DRY (Don't Repeat Yourself) principle, it helps in maintaining 
+    /// cleaner and more maintainable test code.
+    /// </remarks>
+    private static void SetupHttpClientMock(Mock<HttpMessageHandler> mockHttpMessageHandler, HttpStatusCode statusCode,
+        string content)
+    {
+        mockHttpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(new HttpResponseMessage
+            {
+                StatusCode = statusCode,
+                Content = new StringContent(content)
+            });
+    }
 
     // Note: The RetrieveAndSaveCountryByNameAsync method also requires comprehensive testing similar to
     // RetrieveAndSaveCountriesAsync, encompassing all the scenarios previously discussed. Although not
