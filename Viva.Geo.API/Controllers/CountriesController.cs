@@ -48,25 +48,29 @@ public class CountriesController : ControllerBase
         }
     }
 
-    [HttpGet("{countryName}")]
-    public async Task<IActionResult> RetrieveAndSaveCountry(string countryName)
+    [HttpGet("{name}")]
+    public async Task<IActionResult> RetrieveAndSaveCountry(string name)
     {
         var eventId = _eventIdFactory.Create(VivaGeoApiEvent.CountryProcessing);
-        var traceId = HttpContext.TraceIdentifier;
+        var connectionRemotePort = HttpContext.Connection.RemotePort;
+
 
         using (_logger.BeginScope(new Dictionary<string, object> {["ConnectionRemotePort"] = connectionRemotePort}))
         {
-                countryName, traceId);
+            _logger.LogInformation(
+                eventId: eventId,
+                message: "Retrieving and saving country for: {name}.", name);
 
-            var countryDto = await _countryService.RetrieveAndSaveCountryByNameAsync(countryName);
+            var countryDto = await _countryService.RetrieveAndSaveCountryByNameAsync(name);
             if (countryDto == null)
             {
-                return NotFound($"Country data for {countryName} not found.");
+                return NotFound($"Country data for {name} not found.");
             }
 
-            _logger.LogInformation(eventId,
-                "Successfully retrieved and saved country data for: {countryName}. TraceId: {TraceId}", countryName,
-                traceId);
+            _logger.LogInformation(
+                eventId: eventId,
+                message: "Successfully retrieved and saved country data for: {name}.", name);
+
             return Ok(countryDto);
         }
     }
