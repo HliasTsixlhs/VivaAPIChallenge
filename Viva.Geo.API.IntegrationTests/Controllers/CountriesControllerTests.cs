@@ -1,4 +1,5 @@
 ﻿using System.Net.Http.Json;
+using FluentAssertions;
 using Viva.Geo.API.Common.Dtos.Countries.Responses;
 using Viva.Geo.API.IntegrationTests.Constants;
 using Viva.Geo.API.IntegrationTests.WebApplicationFactory;
@@ -43,19 +44,17 @@ public class CountriesControllerTests : IDisposable
         var secondRequestTime = secondRequestEnd - secondRequestStart;
 
         // Assert - Validate first response
-        Assert.NotNull(firstResponse);
-        Assert.Equal("Greece", firstResponse.CommonName);
-        Assert.Equal("Athens", firstResponse.Capital);
-        Assert.Contains("ALB", firstResponse.Borders);
-        Assert.Contains("BGR", firstResponse.Borders);
-        Assert.Contains("TUR", firstResponse.Borders);
-        Assert.Contains("MKD", firstResponse.Borders);
+        firstResponse.Should().NotBeNull();
+        firstResponse.CommonName.Should().Be("Greece");
+        firstResponse.Capital.Should().Be("Athens");
+        firstResponse.Borders.Should().Contain(new List<string> {"ALB", "BGR", "TUR", "MKD"});
 
         // Assert - Validate second response
-        Assert.NotNull(secondResponse);
+        secondResponse.Should().NotBeNull();
 
         // Assert - Compare times
-        Assert.True(secondRequestTime < firstRequestTime, "Second request should be faster due to caching");
+        secondRequestTime.Should()
+            .BeLessThan(firstRequestTime, because: "Second request should be faster due to caching");
     }
 
     public void Dispose()

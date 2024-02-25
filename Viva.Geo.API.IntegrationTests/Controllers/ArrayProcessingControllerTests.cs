@@ -1,4 +1,5 @@
 ﻿using System.Net.Http.Json;
+using FluentAssertions;
 using Viva.Geo.API.Common.Dtos.ArrayProcessing.Requests;
 using Viva.Geo.API.Common.Dtos.ArrayProcessing.Responses;
 using Viva.Geo.API.IntegrationTests.Constants;
@@ -38,8 +39,8 @@ public class ArrayProcessingControllerTests : IDisposable
 
         // Assert
         response.EnsureSuccessStatusCode();
-        Assert.NotNull(responseData);
-        Assert.Equal(2, responseData.SecondLargestInteger);
+        responseData.Should().NotBeNull();
+        responseData.SecondLargestInteger.Should().Be(2);
     }
 
     public void Dispose()
