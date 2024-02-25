@@ -142,6 +142,11 @@ and `Borders` entities
 This checklist is designed to provide a quick overview of the Viva.Geo.API's capabilities and features. Each item
 represents a key aspect of the project, aligned with industry best practices and standards.
 
+I would also like to take this opportunity to express my gratitude for the challenge presented to me. Working on this
+project has not only refreshed my memory on various exciting aspects related to APIs but has also been a valuable
+learning experience. I've gained a lot of new insights and knowledge throughout this process, and for that, I am truly
+thankful. 😊
+
 ## Contributions
 
 While this project is primarily for assessment purposes, contributions or suggestions are welcome ^_^.
