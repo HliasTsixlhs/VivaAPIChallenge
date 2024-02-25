@@ -10,7 +10,8 @@ To set up the Viva.Geo.API project on your local machine, follow these steps:
 4. **Database Configuration**:
     - **SQL Server Requirement**: SQL Server is required for database operations.
     - **Using Docker for SQL Server**:
-        - Install Docker Desktop and set it to Linux containers mode.
+        - Install Docker Desktop and set it to Linux containers
+          mode [How To Install Docker Desktop with WSL2 Guide](HowToGuides/How_to_install_Docker_WSL2_Guide.md).
         - Pull a Docker image for SQL Server: `docker pull mcr.microsoft.com/mssql/server`
         - Run the SQL Server container with the following command:
           ```bash
@@ -40,7 +41,8 @@ To set up the Viva.Geo.API project on your local machine, follow these steps:
           ```
         - Ensure the connection string for Docker setup (at the appsettings.json file of the Viva.Geo.API)
           uses `Server=sqlserver,1433`.
-        - Use the `docker_compose_control.ps1` script to manage the Docker setup. Command:
+        - Use the `docker_compose_control.ps1` script at the root folder of the project to manage the Docker setup.
+          Command:
 
       ```bash
       .\docker_compose_control.ps1
