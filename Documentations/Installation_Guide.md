@@ -15,11 +15,11 @@ To set up the Viva.Geo.API project on your local machine, follow these steps:
         - Pull a Docker image for SQL Server: `docker pull mcr.microsoft.com/mssql/server`
         - Run the SQL Server container with the following command:
           ```bash
-          docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=P@ssword" -p 1433:1433 --name sqlserver -d mcr.microsoft.com/mssql/server
+          docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=Str@ngP@ssword" -p 1433:1433 --name sqlserver -d mcr.microsoft.com/mssql/server
           ```
 
-        - Use the following connection string in your application:
-          `"ConnectionString": "Server=localhost,1433;Database=GeoDatabase;User ID=sa;Password=P@ssword;TrustServerCertificate=True;"`
+        - Use the following connection string at the application's appsettings.Development.json:
+          `"ConnectionString": "Server=localhost,1433;Database=GeoDatabase;User ID=sa;Password=Str@ngP@ssword;TrustServerCertificate=True;"`
 
 5. **Build the Solution**: Build the solution to restore any missing NuGet packages.
 6. **Database Migration**:
