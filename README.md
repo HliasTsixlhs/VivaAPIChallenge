@@ -69,7 +69,7 @@ For a Comprehensive Step-by-Step Guide: [Installation Guide](Documentations/Inst
 3. **Memory Caching**: A common library, `Common.MemoryCaching`, is used in the `Viva.Geo.API.Core` project.
 4. **Repository Pattern**: Implemented in the `Common.Persistence.EFCore` project and thoroughly tested in `Common.Persistence.EFCore.Tests`. For more details, see [Repository Pattern Documentation](Documentations/RepositoryPatternDocumentation.md).
 5. **Common.Web Project**: Includes a `CorrelationIdMiddleware` to demonstrate integration in a distributed system, aiding in client usage tracking. More information can be found in [Common.Web Documentation](Documentations/Common.WebDocumentation.md).
-
+6. **API Versioning**: Supports backward compatibility through versioning, accomplished using the `Asp.Versioning.Mvc` package. This enables maintaining different versions of the API simultaneously. More information related to why we need this feature can be found [here](Documentations/GeneralNotes/Theory_BackwardsCompatibility.md).
 
 ## Contributions
 
