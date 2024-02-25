@@ -36,6 +36,15 @@ problem-solving in software development.
     - Viva.Geo.API.Tests
     - Viva.Geo.API.IntegrationTests
 
+![ProjectsDiagram.PNG](Documentations%2FImages%2FProjectsStrucutre%2FProjectsDiagram.PNG)
+
+> **Note**: The Common projects have been included to simulate the common packages/libraries typically created at a
+> business application level. These common packages, designed for broad utility across various projects, are
+> instrumental
+> to the Viva.Geo.API. However, their general-purpose nature makes them suitable for inclusion in other projects as
+> well,
+> reinforcing their role as foundational elements for API development.
+
 ## Installation and Setup
 
 To get started with this project, follow these steps:
