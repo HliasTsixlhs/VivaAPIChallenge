@@ -1,12 +1,13 @@
 # Vivia.com Code Challenge - Viva.Geo.API
 
-<img src="Documentations/Images/viva_geo_api.jpg" alt="hermes.png" width="1100" height="650"/>
+<img src="Documentations/Images/viva_geo_api_2.jpg" alt="hermes.png" width="1100" height="650"/>
 
 ## Project Overview
 
-This repository contains the code challenge for Vivia.com, designed to assess the capabilities and skills of job
-applicants in software development. The challenge focuses on various aspects of software engineering, including
-programming in C#, architecture, database integration, and debugging.
+This repository presents the solution for the Vivia.com code challenge! The challenge encompasses a wide range of
+software engineering aspects, including programming in C#, architecture, database integration, and debugging. This
+solution aims to demonstrate a comprehensive approach to the challenge, showcasing best practices and efficient
+problem-solving in software development.
 
 ## Technology Stack
 
@@ -66,31 +67,34 @@ For a Comprehensive Step-by-Step Guide: [Installation Guide](Documentations/Inst
 - **Viva.Geo.API.DataAccess**: Manages the GeoContext, data access models, and migrations, separating the data access
   layer from the business layer.
 
-5 **Unit Tests**: Comprehensive unit testing for core functionalities, covering arithmetic, array processing, system
-flow (caching, database fetching, exception handling).
+5. **Unit Tests**: Comprehensive unit testing for core functionalities is implemented across the project. This includes
+   testing for arithmetic operations, array processing, and system flow aspects such as caching, database interactions,
+   and exception handling. For a detailed overview of our testing strategy, including the test cases and methodologies,
+   refer to [Unit Testing Documentation](Documentations/Unit_Testing_Documentation.md).
 
 ### Supplementary Features
 
-1. **Health Checks**: Implemented using `AspNetCore.HealthChecks` and `AspNetCore.HealthChecks.UI`.
+1. 🚑 **Health Checks**: Implemented using `AspNetCore.HealthChecks` and `AspNetCore.HealthChecks.UI`.
    See [Common.HealthChecks Docs](Documentations/Common_HealthChecks.md) for more details.
-2. **Structured Logging**: Utilizes Serilog and its enriches for semantic logging. For more information, refer
-   to [StructuredLogging Docs](Documentations/StructuredLogging.md).
-3. **Memory Caching**: A common library, `Common.MemoryCaching`, is used in the `Viva.Geo.API.Core` project.
+2. 📊 **Structured Logging**: Utilizes Serilog and its enrichers for semantic logging. For more information, refer
+   to [Structured Logging Docs](Documentations/StructuredLogging.md).
+3. 💾 **Memory Caching**: A common library, `Common.MemoryCaching`, is used in the `Viva.Geo.API.Core` project.
    See [Common.MemoryCaching Docs](Documentations/Common.MemoryCaching.md) for more details.
-4. **Repository Pattern**: Implemented in the `Common.Persistence.EFCore` project and thoroughly tested
+4. 🗃️ **Repository Pattern**: Implemented in the `Common.Persistence.EFCore` project and thoroughly tested
    in `Common.Persistence.EFCore.Tests`. For more details,
    see [Repository Pattern Docs](Documentations/RepositoryPatternDocumentation.md).
-5. **Common.Web Project**: Includes a `CorrelationIdMiddleware` to demonstrate integration in a distributed system,
+5. 🕸️ **Common.Web Project**: Includes a `CorrelationIdMiddleware` to demonstrate integration in a distributed system,
    aiding in client usage tracking. More information can be found
    in [Common.Web Docs](Documentations/Common_Web_Documentation.md).
-6. **API Versioning**: Supports backward compatibility through versioning, accomplished using the `Asp.Versioning.Mvc`
+6. 🔢 **API Versioning**: Supports backward compatibility through versioning, accomplished using the `Asp.Versioning.Mvc`
    package. This enables maintaining different versions of the API simultaneously. More information related to why we
-   need this feature can be found [here](Documentations/GeneralNotes/Theory_BackwardsCompatibility.md).
-7. **API Documentation with Swagger**: Provides interactive documentation and testing capabilities using
+   need this feature can be
+   found [Backwards Compatibility Theory](Documentations/GeneralNotes/Theory_BackwardsCompatibility.md).
+7. 📚 **API Documentation with Swagger**: Provides interactive documentation and testing capabilities using
    the `Swashbuckle.AspNetCore` package. The Swagger UI facilitates easy exploration and interaction with the API's
    endpoints. For a detailed guide on our Swagger implementation,
    see [Swagger Documentation](Documentations/Swagger_Documentation.md).
-8. **Structured Error Handling with ProblemDetails**: The API leverages Microsoft's `ProblemDetails` feature for
+8. ❗ **Structured Error Handling with ProblemDetails**: The API leverages Microsoft's `ProblemDetails` feature for
    returning structured error responses, enhancing clarity and actionability. It ensures errors are universally
    understandable without exposing sensitive details in production. For more insights into our implementation and best
    practices, refer to [ProblemDetails Documentation](Documentations/ProblemDetails_Documentation.md).
@@ -119,10 +123,54 @@ the `Documentations` folder. This document provides a comprehensive overview of 
 considerations, including the rationale behind the many-to-many relationship implementation between the `Countries`
 and `Borders` entities
 
+## Project Checklist
+
+- ✅ **Application Tested**: Comprehensive unit and integration tests implemented.
+- ✅ **Application Decoupled**: Successfully achieved decoupling across Common/Core/DataAccess layers.
+- ✅ **Health Checks Implemented**: Using `AspNetCore.HealthChecks` for system health monitoring.
+- ✅ **Structured Logging**: Integrated with Serilog for enhanced logging.
+- ✅ **Memory Caching**: Implemented with `Common.MemoryCaching`.
+- ✅ **Repository Pattern**: Utilized in data access layer for efficient database interactions.
+- ✅ **API Versioning**: Ensures backward compatibility with `Asp.Versioning.Mvc`.
+- ✅ **Swagger Documentation**: Interactive API documentation using `Swashbuckle.AspNetCore`.
+- ✅ **ProblemDetails for Error Handling**: Structured error responses following best practices.
+- ✅ **Docker/Containerization Support**: Implemented with Dockerfile, docker-compose, and PowerShell scripts for
+  container management.
+
+## Note to Evaluators
+
+This checklist is designed to provide a quick overview of the Viva.Geo.API's capabilities and features. Each item
+represents a key aspect of the project, aligned with industry best practices and standards.
+
 ## Contributions
 
 While this project is primarily for assessment purposes, contributions or suggestions are welcome ^_^.
 
+## Future Considerations
+
+As the Viva.Geo.API project evolves, there are several enhancements and additions that could further improve its
+functionality and scalability:
+
+1. **Hard Fetching Mechanism for Country Data**:
+    - Implementing a mechanism to refetch country data from the Rest Countries API without relying on the database or
+      cache is crucial. This can ensure the data remains up-to-date, especially regarding changes in country borders.
+    - This could be achieved through a dedicated API endpoint, a background worker process, or a periodic task that
+      fetches and stores new data.
+
+2. **Scaling and Asynchronous Communication for Microservice Architecture**:
+    - To scale the application and integrate it into a microservices ecosystem, support for asynchronous communication
+      is essential.
+    - Consider integrating worker support packages like Hangfire to set up asynchronous communication using message
+      brokers like RabbitMQ or Azure Bus Service.
+    - Implementing the transactional outbox/inbox pattern and embracing an Event-Driven Architecture (EDA) can further
+      enhance the system's reliability and scalability in processing asynchronous events and messages.
+    - This change will also influence the API's design, leaning towards a pragmatic REST API style. The API could then
+      support both CRUD operations and long-running tasks, with endpoints designed around verbs and nouns to accommodate
+      different types of requests.
+
+These future considerations aim to enhance the application's data accuracy, scalability, and interoperability within a
+distributed system, aligning with modern software architecture practices.
+
 ## License
 
-This project is licensed under Viva.com ^_^.
+💳 This project is licensed under Viva.com ^_^.
