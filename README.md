@@ -34,6 +34,7 @@ problem-solving in software development.
     - Common.Persistence.EFCore.Tests
     - Viva.Geo.API.Core.Tests
     - Viva.Geo.API.Tests
+    - Viva.Geo.API.IntegrationTests
 
 ## Installation and Setup
 
@@ -67,10 +68,10 @@ For a Comprehensive Step-by-Step Guide: [Installation Guide](Documentations/Inst
 - **Viva.Geo.API.DataAccess**: Manages the GeoContext, data access models, and migrations, separating the data access
   layer from the business layer.
 
-5. **Unit Tests**: Comprehensive unit testing for core functionalities is implemented across the project. This includes
+5. **xUnit Tests**: Comprehensive unit testing for core functionalities is implemented across the project. This includes
    testing for arithmetic operations, array processing, and system flow aspects such as caching, database interactions,
    and exception handling. For a detailed overview of our testing strategy, including the test cases and methodologies,
-   refer to [Unit Testing Documentation](Documentations/Unit_Testing_Documentation.md).
+   refer to [xUnit Testing Documentation](Documentations/xUnit_Testing_Documentation.md).
 
 ### Supplementary Features
 
