@@ -1,6 +1,6 @@
 # Vivia.com Code Challenge - Viva.Geo.API
 
-<img src="Documentations/Images/viva_geo_api_2.jpg" alt="hermes.png" width="1100" height="650"/>
+<img src="Documentations/Images/viva_geo_api_2.jpg" alt="hermes.png" width="787" height="450"/>
 
 ## Project Overview
 
