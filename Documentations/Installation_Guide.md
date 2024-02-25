@@ -24,7 +24,8 @@ To set up the Viva.Geo.API project on your local machine, follow these steps:
 5. **Build the Solution**: Build the solution to restore any missing NuGet packages.
 6. **Database Migration**:
     - Navigate to the `Viva.Geo.API.DataAccess` project.
-    - Run the EF Core database migration command: `dotnet ef database update`
+    - Run the EF Core database migration
+      command: `dotnet ef database update`. [How_to_EFCore_Update_Guide.md](HowToGuides/How_to_EFCore_Update_Guide.md)
     - Alternatively, use the `EFMigrationScript.ps1` script in the root folder of the project. Refer
       to [How To Context Migration Guide](HowToGuides/How_To_ContextMigrationGuide.md) for more details.
 
