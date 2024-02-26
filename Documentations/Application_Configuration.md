@@ -53,9 +53,9 @@ Configuration for the in-memory cache used by the API.
 
 Settings related to the database connection used by the API.
 
-| Setting                           | Description                      | Default Value                                              |
-|-----------------------------------|----------------------------------|------------------------------------------------------------|
-| `DatabaseOptions:ConnectionString`| Connection string for the database | `Server=sqlserver,1433;Database=GeoDatabase;User ID=sa;Password=P@ssword;TrustServerCertificate=True;` |
+| Setting                           | Description                      | Default Value                                                                                                |
+|-----------------------------------|----------------------------------|--------------------------------------------------------------------------------------------------------------|
+| `DatabaseOptions:ConnectionString`| Connection string for the database | `Server=sqlserver,1433;Database=GeoDatabase;User ID=sa;Password=Str@ngP@ssword;TrustServerCertificate=True;` |
 
 ### AllowedHosts
 
